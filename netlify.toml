@@ -1,0 +1,24 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+# /api/* → 云端同步函数（后台与小程序共用）
+[[redirects]]
+  from = "/api/db"
+  to = "/.netlify/functions/sync"
+  status = 200
+
+[[redirects]]
+  from = "/api/sync"
+  to = "/.netlify/functions/sync"
+  status = 200
+
+[[redirects]]
+  from = "/api/push"
+  to = "/.netlify/functions/sync"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "public, max-age=300"

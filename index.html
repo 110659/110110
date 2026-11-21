@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>校园外卖 · 后台管理</title>
+<style>
+:root{--yel:#FFD100;--red:#FF3000;--grn:#0a9d5c;--bg:#F4F5F7;--ink:#222}
+*{margin:0;padding:0;box-sizing:border-box;font-family:"PingFang SC","Microsoft YaHei",sans-serif}
+body{background:var(--bg);color:var(--ink)}
+#login{position:fixed;inset:0;background:linear-gradient(135deg,#1d222b,#2c3444);display:flex;align-items:center;justify-content:center;z-index:99}
+.lg-box{background:#fff;border-radius:18px;padding:40px 44px;width:360px;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.lg-logo{width:56px;height:56px;border-radius:14px;background:var(--yel);display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 14px}
+.lg-t{text-align:center;font-size:20px;font-weight:800;margin-bottom:4px}
+.lg-s{text-align:center;color:#999;font-size:12px;margin-bottom:24px}
+.lg-in{width:100%;border:1px solid #E3E5E8;border-radius:10px;padding:12px 14px;font-size:14px;margin-bottom:12px;outline:none}
+.lg-in:focus{border-color:var(--yel)}
+.lg-btn{width:100%;background:var(--yel);border:none;border-radius:10px;padding:13px 0;font-size:15px;font-weight:800;cursor:pointer}
+.lg-err{color:var(--red);font-size:12px;text-align:center;min-height:18px;margin-top:8px}
+.lg-hint{background:#FFF8E0;border-radius:8px;padding:10px 12px;font-size:12px;color:#8a6a3a;margin-top:10px;line-height:1.7}
+#app{display:none;min-height:100vh}
+.top{background:#fff;border-bottom:1px solid #E8EAED;display:flex;align-items:center;padding:0 24px;height:56px;position:sticky;top:0;z-index:10}
+.tp-logo{width:34px;height:34px;border-radius:9px;background:var(--yel);display:flex;align-items:center;justify-content:center;font-size:18px;margin-right:10px}
+.tp-t{font-size:16px;font-weight:800}
+.tp-live{margin-left:18px;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--grn);background:#E8F8EF;border-radius:20px;padding:5px 12px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--grn);animation:bl 1.2s infinite}
+@keyframes bl{50%{opacity:.25}}
+.tp-user{margin-left:auto;font-size:13px;color:#666}
+.tp-role{color:#fff;border-radius:6px;padding:3px 10px;font-size:12px;margin-right:10px}
+.r-admin{background:var(--red)}.r-kefu{background:var(--grn)}
+.tp-out{color:var(--red);cursor:pointer;font-size:13px}
+.wrap{display:flex}
+.side{width:200px;background:#fff;min-height:calc(100vh - 56px);padding:14px 10px;border-right:1px solid #E8EAED}
+.sd-g{font-size:11px;color:#999;padding:12px 16px 4px}
+.sd-i{padding:11px 16px;border-radius:10px;font-size:14px;color:#555;cursor:pointer;margin-bottom:3px;display:flex;align-items:center;gap:9px}
+.sd-i.on{background:#FFF6D6;color:#8a6a00;font-weight:800}
+.sd-badge{margin-left:auto;background:var(--red);color:#fff;font-size:11px;border-radius:10px;padding:1px 7px}
+.main{flex:1;padding:20px 24px}
+.card{background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 2px 10px rgba(0,0,0,.04);margin-bottom:16px}
+.c-t{font-size:15px;font-weight:800;margin-bottom:14px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.st{border-radius:14px;padding:18px;color:#fff}
+.st .v{font-size:28px;font-weight:900}
+.st .k{font-size:12px;opacity:.85;margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#F7F8FA;text-align:left;padding:10px 12px;color:#666;font-weight:600;white-space:nowrap}
+td{padding:11px 12px;border-bottom:1px solid #F2F3F5;vertical-align:middle}
+tr:hover td{background:#FFFEF5}
+.tag{display:inline-block;border-radius:6px;padding:2px 9px;font-size:12px;font-weight:600}
+.tg-grn{background:#E8F8EF;color:var(--grn)}.tg-org{background:#FFF1E5;color:#FF7A00}
+.tg-red{background:#FFF1F1;color:var(--red)}.tg-blu{background:#EAF1FF;color:#3a6bd6}.tg-gry{background:#F0F1F3;color:#888}
+.btn{border:none;border-radius:8px;padding:7px 14px;font-size:13px;cursor:pointer;font-weight:600}
+.b-ok{background:var(--grn);color:#fff}.b-no{background:#fff;color:#888;border:1px solid #ddd}
+.b-rd{background:var(--red);color:#fff}.b-y{background:var(--yel);color:#6b5600}
+.b-bl{background:#3a6bd6;color:#fff}
+.b-sm{padding:5px 10px;font-size:12px;margin-right:6px}
+.star{color:#FFB300}
+.chip{display:inline-block;background:#F2F3F5;border-radius:16px;padding:5px 14px;font-size:12px;color:#555;cursor:pointer;margin-right:8px}
+.chip.on{background:#FFF3C2;color:#8a5c00;font-weight:700}
+.chat-row{display:flex;height:460px}
+.chat-users{width:240px;border-right:1px solid #F0F0F0;overflow-y:auto}
+.cu{padding:13px 16px;cursor:pointer;border-bottom:1px solid #F5F6F7}
+.cu.on{background:#FFF8DC}
+.cu-n{font-size:14px;font-weight:700}
+.cu-m{font-size:12px;color:#999;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chat-main{flex:1;display:flex;flex-direction:column}
+.chat-msgs{flex:1;overflow-y:auto;padding:16px;background:#FAFAFB}
+.msg{max-width:72%;padding:9px 13px;border-radius:12px;font-size:13px;margin-bottom:10px;line-height:1.5}
+.msg.me{background:var(--yel);margin-left:auto}
+.msg.u{background:#fff;border:1px solid #EBECEE}
+.chat-input{display:flex;gap:10px;padding:12px;border-top:1px solid #F0F0F0}
+.chat-input input{flex:1;border:1px solid #E3E5E8;border-radius:9px;padding:10px 14px;font-size:13px;outline:none}
+.set-in,.f-in{border:1px solid #E3E5E8;border-radius:9px;padding:10px 14px;font-size:13px;outline:none}
+.set-row{display:flex;gap:10px;margin-top:10px}
+.set-row .set-in{flex:1}
+.mut{color:#999;font-size:12px;line-height:1.8}
+.todo{display:flex;justify-content:space-between;padding:12px 4px;border-bottom:1px dashed #eee;font-size:13px}
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#333;color:#fff;border-radius:10px;padding:10px 22px;font-size:13px;z-index:99;display:none}
+@media(max-width:900px){.grid4{grid-template-columns:repeat(2,1fr)}.side{width:64px}.sd-i span,.sd-g,.sd-badge{display:none}}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="lg-box">
+    <div class="lg-logo">🍱</div>
+    <div class="lg-t">校园外卖 · 后台管理</div>
+    <div class="lg-s">管理员端 / 客服端 · 权限分离</div>
+    <input class="lg-in" id="u" placeholder="账号" value="admin">
+    <input class="lg-in" id="p" type="password" placeholder="密码" value="">
+    <button class="lg-btn" onclick="doLogin()">登 录</button>
+    <div class="lg-err" id="lg-err"></div>
+    <div class="lg-hint">管理员（全局运营/审批/配置）：admin / admin123<br>客服（接待/售后/上报，无审批权）：kefu / kefu123</div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="top">
+    <div class="tp-logo">🍱</div><div class="tp-t">校园外卖后台</div>
+    <div class="tp-live"><div class="dot"></div><span id="live-txt">数据库已连接</span></div>
+    <div class="tp-user"><span class="tp-role" id="role-tag">管理员</span><span id="who"></span> · <span class="tp-out" onclick="logout()">退出</span></div>
+  </div>
+  <div class="wrap">
+    <div class="side" id="side"></div>
+    <div class="main" id="main"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script id="seedslot">var SEED={"generatedAt":"2026-11-21T11:17:26.491Z","shops":[{"id":"m01","name":"川香麻辣香锅","branch":"一食堂店","tag":"美食","rating":4.7,"salesNum":1187,"km":0.9,"fee":2,"min":15,"loc":"一食堂 1F · 3号窗口","logo":"/assets/shop/machao-logo.png"},{"id":"m02","name":"川香麻辣香锅","branch":"三食堂店","tag":"美食","rating":4.7,"salesNum":825,"km":1.2,"fee":2,"min":15,"loc":"三食堂 2F · 12号窗口","logo":"/assets/shop/machao-logo.png"},{"id":"m03","name":"老王青花椒烤鱼","branch":"二食堂店","tag":"美食","rating":4.6,"salesNum":1427,"km":0.8,"fee":3,"min":20,"loc":"二食堂 2F · 6号窗口","logo":"/assets/shop/kaoyu-logo.png"},{"id":"m04","name":"贝斯汉堡","branch":"一食堂店","tag":"美食","rating":4.3,"salesNum":764,"km":1,"fee":2,"min":20,"loc":"一食堂 1F · 8号窗口","logo":"/assets/shop/beisi-logo.png"},{"id":"m05","name":"贝斯汉堡","branch":"南苑店","tag":"美食","rating":4.3,"salesNum":1487,"km":1.2,"fee":2,"min":20,"loc":"南苑商业街 3号","logo":"/assets/shop/beisi-logo.png"},{"id":"m06","name":"贝斯汉堡","branch":"图书馆店","tag":"美食","rating":4.3,"salesNum":1401,"km":1.3,"fee":2,"min":20,"loc":"图书馆 B1 轻食区","logo":"/assets/shop/beisi-logo.png"},{"id":"m07","name":"饺子云吞世家","branch":"一食堂店","tag":"美食","rating":4.8,"salesNum":1332,"km":0.5,"fee":1.5,"min":12,"loc":"一食堂 2F · 5号窗口","logo":"/assets/shop/jiaozi-logo.png"},{"id":"m08","name":"饺子云吞世家","branch":"北苑店","tag":"美食","rating":4.8,"salesNum":851,"km":0.7,"fee":1.5,"min":12,"loc":"北苑食堂 1F","logo":"/assets/shop/jiaozi-logo.png"},{"id":"m09","name":"兰州牛肉面","branch":"二食堂店","tag":"美食","rating":4.5,"salesNum":1038,"km":1.4,"fee":1.5,"min":12,"loc":"二食堂 1F · 2号窗口","logo":"/assets/shop/lanzhou-logo.png"},{"id":"m10","name":"兰州牛肉面","branch":"东门店","tag":"美食","rating":4.5,"salesNum":1113,"km":0.9,"fee":1.5,"min":12,"loc":"东门内侧 商业街7号","logo":"/assets/shop/lanzhou-logo.png"},{"id":"m11","name":"黄焖鸡米饭","branch":"一食堂店","tag":"美食","rating":4.4,"salesNum":1473,"km":1,"fee":2,"min":15,"loc":"一食堂 1F · 7号窗口","logo":"/assets/shop/huangmen-logo.png"},{"id":"m12","name":"黄焖鸡米饭","branch":"三食堂店","tag":"美食","rating":4.4,"salesNum":1595,"km":0.8,"fee":2,"min":15,"loc":"三食堂 1F · 4号窗口","logo":"/assets/shop/huangmen-logo.png"},{"id":"m13","name":"黄焖鸡米饭","branch":"南苑店","tag":"美食","rating":4.4,"salesNum":999,"km":1.1,"fee":2,"min":15,"loc":"南苑商业街 1号","logo":"/assets/shop/huangmen-logo.png"},{"id":"m14","name":"学生食堂自选快餐","branch":"三食堂店","tag":"美食","rating":4.6,"salesNum":646,"km":1.5,"fee":1,"min":10,"loc":"三食堂 1F · 自选档口","logo":"/assets/shop/zizhu-logo.png"},{"id":"m15","name":"柳州螺蛳粉","branch":"二食堂店","tag":"美食","rating":4.5,"salesNum":1346,"km":0.6,"fee":2,"min":15,"loc":"二食堂 2F · 9号窗口","logo":"/assets/shop/luosifen-logo.png"},{"id":"m16","name":"柳州螺蛳粉","branch":"北苑店","tag":"美食","rating":4.5,"salesNum":1567,"km":1.1,"fee":2,"min":15,"loc":"北苑食堂 2F","logo":"/assets/shop/luosifen-logo.png"},{"id":"m17","name":"烤肉拌饭","branch":"一食堂店","tag":"美食","rating":4.5,"salesNum":1364,"km":1,"fee":2,"min":15,"loc":"一食堂 2F · 11号窗口","logo":"/assets/shop/banfan-logo.png"},{"id":"m18","name":"烤肉拌饭","branch":"南苑店","tag":"美食","rating":4.5,"salesNum":1310,"km":1,"fee":2,"min":15,"loc":"南苑商业街 5号","logo":"/assets/shop/banfan-logo.png"},{"id":"m19","name":"手抓饼·煎饼果子","branch":"一食堂店","tag":"美食","rating":4.7,"salesNum":1230,"km":0.6,"fee":1,"min":8,"loc":"一食堂 1F · 早餐档口","logo":"/assets/shop/shouzhuabing-logo.png"},{"id":"m20","name":"手抓饼·煎饼果子","branch":"东门店","tag":"美食","rating":4.7,"salesNum":1564,"km":0.6,"fee":1,"min":8,"loc":"东门内侧 早餐车","logo":"/assets/shop/shouzhuabing-logo.png"},{"id":"m21","name":"张记麻辣烫","branch":"一食堂店","tag":"美食","rating":4.6,"salesNum":1381,"km":0.6,"fee":2,"min":15,"loc":"一食堂 2F · 14号窗口","logo":"/assets/shop/malatang-logo.png"},{"id":"m22","name":"张记麻辣烫","branch":"二食堂店","tag":"美食","rating":4.6,"salesNum":1497,"km":0.9,"fee":2,"min":15,"loc":"二食堂 1F · 5号窗口","logo":"/assets/shop/malatang-logo.png"},{"id":"m23","name":"张记麻辣烫","branch":"南苑店","tag":"美食","rating":4.6,"salesNum":1527,"km":1.5,"fee":2,"min":15,"loc":"南苑商业街 8号","logo":"/assets/shop/malatang-logo.png"},{"id":"m24","name":"闽南小吃","branch":"三食堂店","tag":"美食","rating":4.3,"salesNum":1052,"km":0.8,"fee":1.5,"min":12,"loc":"三食堂 1F · 8号窗口","logo":"/assets/shop/minnan-logo.png"},{"id":"m25","name":"铁板炒饭","branch":"二食堂店","tag":"美食","rating":4.4,"salesNum":1172,"km":1.5,"fee":1.5,"min":12,"loc":"二食堂 2F · 4号窗口","logo":"/assets/shop/chaofan-logo.png"},{"id":"m26","name":"铁板炒饭","branch":"东门店","tag":"美食","rating":4.4,"salesNum":864,"km":0.5,"fee":1.5,"min":12,"loc":"东门内侧 商业街9号","logo":"/assets/shop/chaofan-logo.png"},{"id":"m27","name":"鸡公煲","branch":"南苑店","tag":"美食","rating":4.4,"salesNum":1309,"km":1.4,"fee":2.5,"min":18,"loc":"南苑商业街 12号","logo":"/assets/shop/jigongbao-logo.png"},{"id":"m28","name":"鸡公煲","branch":"北苑店","tag":"美食","rating":4.4,"salesNum":1395,"km":1.1,"fee":2.5,"min":18,"loc":"北苑食堂 3F","logo":"/assets/shop/jigongbao-logo.png"},{"id":"m29","name":"粥铺·早点","branch":"一食堂店","tag":"美食","rating":4.7,"salesNum":1530,"km":1,"fee":1,"min":8,"loc":"一食堂 1F · 早餐区","logo":"/assets/shop/zhoupu-logo.png"},{"id":"m30","name":"重庆小面","branch":"二食堂店","tag":"美食","rating":4.5,"salesNum":1502,"km":0.5,"fee":1.5,"min":12,"loc":"二食堂 1F · 7号窗口","logo":"/assets/shop/chongqing-logo.png"},{"id":"m31","name":"甜蜜蜜奶茶","branch":"一食堂店","tag":"甜点饮品","rating":4.9,"salesNum":1300,"km":1.1,"fee":0,"min":10,"loc":"一食堂 1F · 奶茶区","logo":"/assets/shop/tianmimi-logo.png"},{"id":"m32","name":"甜蜜蜜奶茶","branch":"图书馆店","tag":"甜点饮品","rating":4.9,"salesNum":844,"km":0.6,"fee":0,"min":10,"loc":"图书馆 1F 咖啡角","logo":"/assets/shop/tianmimi-logo.png"},{"id":"m33","name":"甜蜜蜜奶茶","branch":"南苑店","tag":"甜点饮品","rating":4.9,"salesNum":1633,"km":1.4,"fee":0,"min":10,"loc":"南苑商业街 2号","logo":"/assets/shop/tianmimi-logo.png"},{"id":"m34","name":"芝士蛋糕坊","branch":"南苑店","tag":"甜点饮品","rating":4.7,"salesNum":1299,"km":1,"fee":3,"min":20,"loc":"南苑商业街 6号","logo":"/assets/shop/zhishi-logo.png"},{"id":"m35","name":"芝士蛋糕坊","branch":"北苑店","tag":"甜点饮品","rating":4.7,"salesNum":1593,"km":0.7,"fee":3,"min":20,"loc":"北苑食堂 1F","logo":"/assets/shop/zhishi-logo.png"},{"id":"m36","name":"冰城奶茶铺","branch":"二食堂店","tag":"甜点饮品","rating":4.5,"salesNum":1463,"km":0.9,"fee":0.5,"min":8,"loc":"二食堂 1F · 饮品区","logo":"/assets/shop/bingcheng-logo.png"},{"id":"m37","name":"冰城奶茶铺","branch":"三食堂店","tag":"甜点饮品","rating":4.5,"salesNum":1333,"km":1.1,"fee":0.5,"min":8,"loc":"三食堂 1F · 饮品区","logo":"/assets/shop/bingcheng-logo.png"},{"id":"m38","name":"冰城奶茶铺","branch":"东门店","tag":"甜点饮品","rating":4.5,"salesNum":1210,"km":0.9,"fee":0.5,"min":8,"loc":"东门内侧 商业街3号","logo":"/assets/shop/bingcheng-logo.png"},{"id":"m39","name":"小蓝杯咖啡","branch":"图书馆店","tag":"甜点饮品","rating":4.6,"salesNum":1225,"km":1.3,"fee":2,"min":15,"loc":"图书馆 1F 东侧","logo":"/assets/shop/xiaolanbei-logo.png"},{"id":"m40","name":"小蓝杯咖啡","branch":"文渊楼店","tag":"甜点饮品","rating":4.6,"salesNum":1286,"km":0.8,"fee":2,"min":15,"loc":"文渊楼 A 座 1F","logo":"/assets/shop/xiaolanbei-logo.png"},{"id":"m41","name":"麦香面包坊","branch":"一食堂店","tag":"甜点饮品","rating":4.6,"salesNum":1735,"km":0.6,"fee":2,"min":12,"loc":"一食堂 1F · 烘焙区","logo":"/assets/shop/maixiang-logo.png"},{"id":"m42","name":"麦香面包坊","branch":"北苑店","tag":"甜点饮品","rating":4.6,"salesNum":1738,"km":0.9,"fee":2,"min":12,"loc":"北苑食堂 1F","logo":"/assets/shop/maixiang-logo.png"},{"id":"m43","name":"鲜榨果汁站","branch":"体育馆店","tag":"甜点饮品","rating":4.7,"salesNum":1514,"km":0.5,"fee":1,"min":10,"loc":"体育馆 西侧 1F","logo":"/assets/shop/guozhi-logo.png"},{"id":"m44","name":"双皮奶甜品站","branch":"南苑店","tag":"甜点饮品","rating":4.8,"salesNum":1290,"km":1.2,"fee":1,"min":10,"loc":"南苑商业街 9号","logo":"/assets/shop/shuangpinai-logo.png"},{"id":"m45","name":"校园超市便利店","branch":"南苑店","tag":"超市便利","rating":4.6,"salesNum":1104,"km":0.6,"fee":0,"min":8,"loc":"南苑 5号楼 1F","logo":"/assets/shop/chaoshi-logo.png"},{"id":"m46","name":"校园超市便利店","branch":"北苑店","tag":"超市便利","rating":4.6,"salesNum":872,"km":0.7,"fee":0,"min":8,"loc":"北苑 2号楼 1F","logo":"/assets/shop/chaoshi-logo.png"},{"id":"m47","name":"校园超市便利店","branch":"三食堂店","tag":"超市便利","rating":4.6,"salesNum":875,"km":1.5,"fee":0,"min":8,"loc":"三食堂 1F 东侧","logo":"/assets/shop/chaoshi-logo.png"},{"id":"m48","name":"鲜果多多·水果超市","branch":"南苑店","tag":"超市便利","rating":4.8,"salesNum":863,"km":0.8,"fee":1,"min":10,"loc":"南苑商业街 4号","logo":"/assets/shop/xianguo-logo.png"},{"id":"m49","name":"鲜果多多·水果超市","branch":"二食堂店","tag":"超市便利","rating":4.8,"salesNum":485,"km":0.8,"fee":1,"min":10,"loc":"二食堂 1F 入口","logo":"/assets/shop/xianguo-logo.png"},{"id":"m50","name":"鲜果多多·水果超市","branch":"东门店","tag":"超市便利","rating":4.8,"salesNum":656,"km":1.1,"fee":1,"min":10,"loc":"东门内侧 水果摊","logo":"/assets/shop/xianguo-logo.png"},{"id":"m51","name":"文具日杂便利店","branch":"文渊楼店","tag":"超市便利","rating":4.5,"salesNum":974,"km":0.6,"fee":1,"min":8,"loc":"文渊楼 A 座 1F","logo":"/assets/shop/wenju-logo.png"},{"id":"m52","name":"文具日杂便利店","branch":"图书馆店","tag":"超市便利","rating":4.5,"salesNum":1082,"km":1.5,"fee":1,"min":8,"loc":"图书馆 2F 自助区","logo":"/assets/shop/wenju-logo.png"},{"id":"m53","name":"快递驿站小超","branch":"驿站店","tag":"超市便利","rating":4.4,"salesNum":707,"km":1,"fee":0.5,"min":5,"loc":"南苑 快递驿站 1F","logo":"/assets/shop/yizhan-logo.png"},{"id":"m54","name":"快递驿站小超","branch":"北苑店","tag":"超市便利","rating":4.4,"salesNum":910,"km":1.3,"fee":0.5,"min":5,"loc":"北苑 快递驿站","logo":"/assets/shop/yizhan-logo.png"},{"id":"m55","name":"校医务室药房","branch":"校医院店","tag":"看病买药","rating":4.9,"salesNum":186,"km":0.5,"fee":0,"min":0,"loc":"校医院 1F 药房","logo":"/assets/shop/xiaoyi-logo.png"},{"id":"m56","name":"校医务室药房","branch":"南苑店","tag":"看病买药","rating":4.9,"salesNum":223,"km":1.1,"fee":0,"min":0,"loc":"南苑 卫生服务站","logo":"/assets/shop/xiaoyi-logo.png"},{"id":"m57","name":"康健校园药房","branch":"东门店","tag":"看病买药","rating":4.6,"salesNum":275,"km":0.7,"fee":2,"min":10,"loc":"东门内侧 商业街11号","logo":"/assets/shop/kangjian-logo.png"},{"id":"m58","name":"康健校园药房","branch":"北苑店","tag":"看病买药","rating":4.6,"salesNum":150,"km":1.1,"fee":2,"min":10,"loc":"北苑 商业街 2号","logo":"/assets/shop/kangjian-logo.png"},{"id":"m59","name":"24h自助药柜","branch":"南苑店","tag":"看病买药","rating":4.7,"salesNum":245,"km":1.1,"fee":0,"min":0,"loc":"南苑 5号楼 大厅","logo":"/assets/shop/zizhuyigui-logo.png"},{"id":"m60","name":"24h自助药柜","branch":"二食堂店","tag":"看病买药","rating":4.7,"salesNum":186,"km":1.4,"fee":0,"min":0,"loc":"二食堂 1F 门口","logo":"/assets/shop/zizhuyigui-logo.png"}],"orders":[{"id":"CY1795259845490","merchantId":"m36","merchantName":"冰城奶茶铺·二食堂店","merchantLogo":"/assets/shop/bingcheng-logo.png","items":[{"name":"圣代冰淇淋","qty":1,"price":6},{"name":"柠檬水","qty":1,"price":4}],"mode":"自取","statusList":["待接单","商家备餐中","出餐完成·凭码取餐"],"statusIdx":0,"price":10,"discount":5,"fee":0,"addr":{"tag":"宿舍","addr":"南苑5号楼502"},"createdAt":1795259846490},{"id":"CY1795173445489","merchantId":"m36","merchantName":"冰城奶茶铺·二食堂店","merchantLogo":"/assets/shop/bingcheng-logo.png","items":[{"name":"圣代冰淇淋","qty":1,"price":6},{"name":"柠檬水","qty":1,"price":4}],"mode":"配送","statusList":["待接单","商家已接单","骑手配送中","已送达"],"statusIdx":2,"price":10.5,"discount":0,"fee":0.5,"addr":{"tag":"宿舍","addr":"南苑5号楼502"},"createdAt":1795173446490},{"id":"CY1795087045488","merchantId":"m01","merchantName":"川香麻辣香锅·一食堂店","merchantLogo":"/assets/shop/machao-logo.png","items":[{"name":"招牌麻辣香锅","qty":1,"price":26.8},{"name":"午餐肉香锅","qty":2,"price":19.9}],"mode":"配送","statusList":["待接单","商家已接单","骑手配送中","已送达"],"statusIdx":3,"price":68.6,"discount":0,"fee":2,"addr":{"tag":"宿舍","addr":"南苑5号楼502"},"createdAt":1795087046490},{"id":"CY1795000645487","merchantId":"m51","merchantName":"文具日杂便利店·文渊楼店","merchantLogo":"/assets/shop/wenju-logo.png","items":[{"name":"中性笔(3支)","qty":1,"price":6},{"name":"A4笔记本","qty":1,"price":8.5}],"mode":"配送","statusList":["待接单","商家已接单","骑手配送中","已送达"],"statusIdx":3,"price":15.5,"discount":5,"fee":1,"addr":{"tag":"宿舍","addr":"南苑9号楼315"},"createdAt":1795000646490},{"id":"CY1794914245486","merchantId":"m55","merchantName":"校医务室药房·校医院店","merchantLogo":"/assets/shop/xiaoyi-logo.png","items":[{"name":"感冒灵冲剂(10袋)","qty":2,"price":16},{"name":"健胃消食片","qty":1,"price":9.9}],"mode":"配送","statusList":["待接单","商家已接单","骑手配送中","已送达"],"statusIdx":3,"price":41.9,"discount":0,"fee":0,"addr":{"tag":"宿舍","addr":"南苑2号楼615"},"createdAt":1794914246490},{"id":"CY1794827845485","merchantId":"m16","merchantName":"柳州螺蛳粉·北苑店","merchantLogo":"/assets/shop/luosifen-logo.png","items":[{"name":"招牌螺蛳粉","qty":1,"price":18},{"name":"番茄螺蛳粉","qty":1,"price":19}],"mode":"自取","statusList":["待接单","商家备餐中","出餐完成·凭码取餐"],"statusIdx":2,"price":37,"discount":0,"fee":0,"addr":{"tag":"宿舍","addr":"东苑1号楼303"},"createdAt":1794827846490},{"id":"CY1794741445484","merchantId":"m41","merchantName":"麦香面包坊·一食堂店","merchantLogo":"/assets/shop/maixiang-logo.png","items":[{"name":"手撕吐司","qty":1,"price":12.9},{"name":"肉松小贝","qty":1,"price":9.9}],"mode":"自取","statusList":["待接单","商家备餐中","出餐完成·凭码取餐"],"statusIdx":1,"price":22.8,"discount":5,"fee":0,"addr":{"tag":"宿舍","addr":"东苑6号楼408"},"createdAt":1794741446490},{"id":"CY1794655045483","merchantId":"m55","merchantName":"校医务室药房·校医院店","merchantLogo":"/assets/shop/xiaoyi-logo.png","items":[{"name":"感冒灵冲剂(10袋)","qty":2,"price":16},{"name":"健胃消食片","qty":1,"price":9.9}],"mode":"配送","statusList":["待接单","商家已接单","骑手配送中","已送达"],"statusIdx":0,"price":41.9,"discount":0,"fee":0,"addr":{"tag":"宿舍","addr":"北苑7号楼503"},"createdAt":1794655046490},{"id":"CY1794568645482","merchantId":"m06","merchantName":"贝斯汉堡·图书馆店","merchantLogo":"/assets/shop/beisi-logo.png","items":[{"name":"双层牛肉堡套餐","qty":2,"price":25},{"name":"香辣炸鸡桶","qty":2,"price":22}],"mode":"配送","statusList":["待接单","商家已接单","骑手配送中","已送达"],"statusIdx":2,"price":96,"discount":0,"fee":2,"addr":{"tag":"宿舍","addr":"研究生公寓2栋1201"},"createdAt":1794568646490},{"id":"CY1794482245481","merchantId":"m43","merchantName":"鲜榨果汁站·体育馆店","merchantLogo":"/assets/shop/guozhi-logo.png","items":[{"name":"鲜榨橙汁","qty":1,"price":12},{"name":"西瓜汁","qty":2,"price":10}],"mode":"自取","statusList":["待接单","商家备餐中","出餐完成·凭码取餐"],"statusIdx":2,"price":32,"discount":5,"fee":0,"addr":{"tag":"宿舍","addr":"东苑1号楼303"},"createdAt":1794482246490},{"id":"CY1794395845480","merchantId":"m26","merchantName":"铁板炒饭·东门店","merchantLogo":"/assets/shop/chaofan-logo.png","items":[{"name":"铁板牛肉炒饭","qty":1,"price":16},{"name":"扬州炒饭","qty":1,"price":14}],"mode":"配送","statusList":["待接单","商家已接单","骑手配送中","已送达"],"statusIdx":3,"price":31.5,"discount":0,"fee":1.5,"addr":{"tag":"宿舍","addr":"南苑9号楼315"},"createdAt":1794395846490},{"id":"CY1794309445479","merchantId":"m52","merchantName":"文具日杂便利店·图书馆店","merchantLogo":"/assets/shop/wenju-logo.png","items":[{"name":"中性笔(3支)","qty":1,"price":6},{"name":"A4笔记本","qty":1,"price":8.5}],"mode":"配送","statusList":["待接单","商家已接单","骑手配送中","已送达"],"statusIdx":3,"price":15.5,"discount":0,"fee":1,"addr":{"tag":"宿舍","addr":"南苑5号楼502"},"createdAt":1794309446490},{"id":"CY1794223045478","merchantId":"m58","merchantName":"康健校园药房·北苑店","merchantLogo":"/assets/shop/kangjian-logo.png","items":[{"name":"布洛芬缓释胶囊","qty":1,"price":18},{"name":"医用外科口罩(20只)","qty":1,"price":12.9}],"mode":"配送","statusList":["待接单","商家已接单","骑手配送中","已送达"],"statusIdx":3,"price":32.9,"discount":5,"fee":2,"addr":{"tag":"宿舍","addr":"东苑1号楼303"},"createdAt":1794223046490},{"id":"CY1794136645477","merchantId":"m40","merchantName":"小蓝杯咖啡·文渊楼店","merchantLogo":"/assets/shop/xiaolanbei-logo.png","items":[{"name":"生椰拿铁","qty":1,"price":15.9},{"name":"美式咖啡","qty":1,"price":12}],"mode":"配送","statusList":["待接单","商家已接单","骑手配送中","已送达"],"statusIdx":2,"price":29.9,"discount":0,"fee":2,"addr":{"tag":"宿舍","addr":"研究生公寓2栋1201"},"createdAt":1794136646490},{"id":"CY1794050245476","merchantId":"m59","merchantName":"24h自助药柜·南苑店","merchantLogo":"/assets/shop/zizhuyigui-logo.png","items":[{"name":"退热贴(4片)","qty":1,"price":9.9},{"name":"蒙脱石散","qty":2,"price":13}],"mode":"自取","statusList":["待接单","商家备餐中","出餐完成·凭码取餐"],"statusIdx":0,"price":35.9,"discount":0,"fee":0,"addr":{"tag":"宿舍","addr":"北苑7号楼503"},"createdAt":1794050246490},{"id":"CY1793963845475","merchantId":"m03","merchantName":"老王青花椒烤鱼·二食堂店","merchantLogo":"/assets/shop/kaoyu-logo.png","items":[{"name":"青花椒烤鱼套餐","qty":2,"price":55.9},{"name":"鱼柳套餐(1人食)","qty":2,"price":24.9}],"mode":"配送","statusList":["待接单","商家已接单","骑手配送中","已送达"],"statusIdx":2,"price":164.6,"discount":5,"fee":3,"addr":{"tag":"宿舍","addr":"南苑5号楼502"},"createdAt":1793963846490},{"id":"CY1793877445474","merchantId":"m07","merchantName":"饺子云吞世家·一食堂店","merchantLogo":"/assets/shop/jiaozi-logo.png","items":[{"name":"猪肉玉米水饺(12只)","qty":2,"price":13},{"name":"鲜虾云吞(10只)","qty":2,"price":15}],"mode":"配送","statusList":["待接单","商家已接单","骑手配送中","已送达"],"statusIdx":0,"price":57.5,"discount":0,"fee":1.5,"addr":{"tag":"宿舍","addr":"北苑3号楼210"},"createdAt":1793877446490},{"id":"CY1793791045473","merchantId":"m04","merchantName":"贝斯汉堡·一食堂店","merchantLogo":"/assets/shop/beisi-logo.png","items":[{"name":"双层牛肉堡套餐","qty":2,"price":25},{"name":"香辣炸鸡桶","qty":2,"price":22}],"mode":"配送","statusList":["待接单","商家已接单","骑手配送中","已送达"],"statusIdx":3,"price":96,"discount":0,"fee":2,"addr":{"tag":"宿舍","addr":"北苑3号楼210"},"createdAt":1793791046490},{"id":"CY1793704645472","merchantId":"m34","merchantName":"芝士蛋糕坊·南苑店","merchantLogo":"/assets/shop/zhishi-logo.png","items":[{"name":"榴莲千层蛋糕","qty":2,"price":68},{"name":"提拉米苏(切块)","qty":2,"price":12.9}],"mode":"自取","statusList":["待接单","商家备餐中","出餐完成·凭码取餐"],"statusIdx":2,"price":161.8,"discount":5,"fee":0,"addr":{"tag":"宿舍","addr":"东苑6号楼408"},"createdAt":1793704646490},{"id":"CY1793618245471","merchantId":"m15","merchantName":"柳州螺蛳粉·二食堂店","merchantLogo":"/assets/shop/luosifen-logo.png","items":[{"name":"招牌螺蛳粉","qty":1,"price":18},{"name":"番茄螺蛳粉","qty":1,"price":19}],"mode":"自取","statusList":["待接单","商家备餐中","出餐完成·凭码取餐"],"statusIdx":2,"price":37,"discount":0,"fee":0,"addr":{"tag":"宿舍","addr":"南苑5号楼502"},"createdAt":1793618246490},{"id":"CY1793531845470","merchantId":"m46","merchantName":"校园超市便利店·北苑店","merchantLogo":"/assets/shop/chaoshi-logo.png","items":[{"name":"泡面经典装×3","qty":2,"price":9.9},{"name":"可乐雪碧组合","qty":1,"price":7}],"mode":"自取","statusList":["待接单","商家备餐中","出餐完成·凭码取餐"],"statusIdx":1,"price":26.8,"discount":0,"fee":0,"addr":{"tag":"宿舍","addr":"研究生公寓2栋1201"},"createdAt":1793531846490},{"id":"CY1793445445469","merchantId":"m60","merchantName":"24h自助药柜·二食堂店","merchantLogo":"/assets/shop/zizhuyigui-logo.png","items":[{"name":"退热贴(4片)","qty":2,"price":9.9},{"name":"蒙脱石散","qty":1,"price":13}],"mode":"配送","statusList":["待接单","商家已接单","骑手配送中","已送达"],"statusIdx":3,"price":32.8,"discount":5,"fee":0,"addr":{"tag":"宿舍","addr":"北苑3号楼210"},"createdAt":1793445446490},{"id":"CY1793359045468","merchantId":"m45","merchantName":"校园超市便利店·南苑店","merchantLogo":"/assets/shop/chaoshi-logo.png","items":[{"name":"泡面经典装×3","qty":2,"price":9.9},{"name":"可乐雪碧组合","qty":1,"price":7}],"mode":"配送","statusList":["待接单","商家已接单","骑手配送中","已送达"],"statusIdx":3,"price":26.8,"discount":0,"fee":0,"addr":{"tag":"宿舍","addr":"南苑5号楼502"},"createdAt":1793359046490},{"id":"CY1793272645467","merchantId":"m59","merchantName":"24h自助药柜·南苑店","merchantLogo":"/assets/shop/zizhuyigui-logo.png","items":[{"name":"退热贴(4片)","qty":1,"price":9.9},{"name":"蒙脱石散","qty":2,"price":13}],"mode":"配送","statusList":["待接单","商家已接单","骑手配送中","已送达"],"statusIdx":1,"price":35.9,"discount":0,"fee":0,"addr":{"tag":"宿舍","addr":"南苑2号楼615"},"createdAt":1793272646490},{"id":"CY1793186245466","merchantId":"m33","merchantName":"甜蜜蜜奶茶·南苑店","merchantLogo":"/assets/shop/tianmimi-logo.png","items":[{"name":"珍珠奶茶","qty":2,"price":9.9},{"name":"满杯百香果","qty":1,"price":10.5}],"mode":"自取","statusList":["待接单","商家备餐中","出餐完成·凭码取餐"],"statusIdx":0,"price":30.3,"discount":5,"fee":0,"addr":{"tag":"宿舍","addr":"北苑7号楼503"},"createdAt":1793186246490},{"id":"CY1793099845465","merchantId":"m34","merchantName":"芝士蛋糕坊·南苑店","merchantLogo":"/assets/shop/zhishi-logo.png","items":[{"name":"榴莲千层蛋糕","qty":2,"price":68},{"name":"提拉米苏(切块)","qty":2,"price":12.9}],"mode":"自取","statusList":["待接单","商家备餐中","出餐完成·凭码取餐"],"statusIdx":0,"price":161.8,"discount":0,"fee":0,"addr":{"tag":"宿舍","addr":"北苑7号楼503"},"createdAt":1793099846490},{"id":"CY1793013445464","merchantId":"m37","merchantName":"冰城奶茶铺·三食堂店","merchantLogo":"/assets/shop/bingcheng-logo.png","items":[{"name":"圣代冰淇淋","qty":1,"price":6},{"name":"柠檬水","qty":1,"price":4}],"mode":"配送","statusList":["待接单","商家已接单","骑手配送中","已送达"],"statusIdx":2,"price":10.5,"discount":0,"fee":0.5,"addr":{"tag":"宿舍","addr":"东苑6号楼408"},"createdAt":1793013446490},{"id":"CY1792927045463","merchantId":"m27","merchantName":"鸡公煲·南苑店","merchantLogo":"/assets/shop/jigongbao-logo.png","items":[{"name":"招牌鸡公煲(小煲)","qty":2,"price":32},{"name":"排骨煲","qty":2,"price":36}],"mode":"配送","statusList":["待接单","商家已接单","骑手配送中","已送达"],"statusIdx":0,"price":138.5,"discount":5,"fee":2.5,"addr":{"tag":"宿舍","addr":"研究生公寓2栋1201"},"createdAt":1792927046490}],"reviews":[{"id":"r0","orderId":"CY1795259845490","merchant":"冰城奶茶铺·二食堂店","logo":"/assets/shop/bingcheng-logo.png","user":"吴同学","anonymous":true,"star":5,"text":"味道很赞，分量足，下次还点！","tags":["味道赞","分量足"],"date":"11月2日","likes":0},{"id":"r1","orderId":"CY1795173445489","merchant":"冰城奶茶铺·二食堂店","logo":"/assets/shop/bingcheng-logo.png","user":"郭同学","anonymous":false,"star":4,"text":"配送很快，到宿舍还是热的","tags":["配送快"],"date":"11月3日","likes":1},{"id":"r2","orderId":"CY1795087045488","merchant":"川香麻辣香锅·一食堂店","logo":"/assets/shop/machao-logo.png","user":"刘同学","anonymous":false,"star":5,"text":"包装严实，汤一点没洒","tags":["味道赞","分量足"],"date":"11月4日","likes":2},{"id":"r3","orderId":"CY1795000645487","merchant":"文具日杂便利店·文渊楼店","logo":"/assets/shop/wenju-logo.png","user":"李同学","anonymous":false,"star":5,"text":"性价比很高，学生党福音","tags":["配送快"],"date":"11月5日","likes":3},{"id":"r4","orderId":"CY1794914245486","merchant":"校医务室药房·校医院店","logo":"/assets/shop/xiaoyi-logo.png","user":"吴同学","anonymous":true,"star":5,"text":"正常发挥，中规中矩","tags":["味道赞","分量足"],"date":"11月6日","likes":4},{"id":"r5","orderId":"CY1794827845485","merchant":"柳州螺蛳粉·北苑店","logo":"/assets/shop/luosifen-logo.png","user":"周同学","anonymous":false,"star":3,"text":"送错了一次，补发很及时","tags":["配送快"],"date":"11月7日","likes":5},{"id":"r6","orderId":"CY1794741445484","merchant":"麦香面包坊·一食堂店","logo":"/assets/shop/maixiang-logo.png","user":"周同学","anonymous":false,"star":4,"text":"略咸，其他都好","tags":["味道赞","分量足"],"date":"11月8日","likes":0},{"id":"r7","orderId":"CY1794655045483","merchant":"校医务室药房·校医院店","logo":"/assets/shop/xiaoyi-logo.png","user":"朱同学","anonymous":false,"star":5,"text":"出餐有点慢，等了35分钟","tags":["配送快"],"date":"11月9日","likes":1},{"id":"r8","orderId":"CY1794568645482","merchant":"贝斯汉堡·图书馆店","logo":"/assets/shop/beisi-logo.png","user":"孙同学","anonymous":true,"star":4,"text":"味道很赞，分量足，下次还点！","tags":["味道赞","分量足"],"date":"11月10日","likes":2},{"id":"r9","orderId":"CY1794482245481","merchant":"鲜榨果汁站·体育馆店","logo":"/assets/shop/guozhi-logo.png","user":"马同学","anonymous":false,"star":5,"text":"配送很快，到宿舍还是热的","tags":["配送快"],"date":"11月11日","likes":3},{"id":"r10","orderId":"CY1794395845480","merchant":"铁板炒饭·东门店","logo":"/assets/shop/chaofan-logo.png","user":"何同学","anonymous":false,"star":3,"text":"包装严实，汤一点没洒","tags":["味道赞","分量足"],"date":"11月12日","likes":4},{"id":"r11","orderId":"CY1794309445479","merchant":"文具日杂便利店·图书馆店","logo":"/assets/shop/wenju-logo.png","user":"赵同学","anonymous":false,"star":5,"text":"性价比很高，学生党福音","tags":["配送快"],"date":"11月13日","likes":5},{"id":"r12","orderId":"CY1794223045478","merchant":"康健校园药房·北苑店","logo":"/assets/shop/kangjian-logo.png","user":"郭同学","anonymous":true,"star":5,"text":"正常发挥，中规中矩","tags":["味道赞","分量足"],"date":"11月14日","likes":0},{"id":"r13","orderId":"CY1794136645477","merchant":"小蓝杯咖啡·文渊楼店","logo":"/assets/shop/xiaolanbei-logo.png","user":"赵同学","anonymous":false,"star":4,"text":"送错了一次，补发很及时","tags":["配送快"],"date":"11月15日","likes":1},{"id":"r14","orderId":"CY1794050245476","merchant":"24h自助药柜·南苑店","logo":"/assets/shop/zizhuyigui-logo.png","user":"杨同学","anonymous":false,"star":4,"text":"略咸，其他都好","tags":["味道赞","分量足"],"date":"11月16日","likes":2},{"id":"r15","orderId":"CY1793963845475","merchant":"老王青花椒烤鱼·二食堂店","logo":"/assets/shop/kaoyu-logo.png","user":"张同学","anonymous":false,"star":4,"text":"出餐有点慢，等了35分钟","tags":["配送快"],"date":"11月17日","likes":3},{"id":"r16","orderId":"CY1793877445474","merchant":"饺子云吞世家·一食堂店","logo":"/assets/shop/jiaozi-logo.png","user":"陈同学","anonymous":true,"star":5,"text":"味道很赞，分量足，下次还点！","tags":["味道赞","分量足"],"date":"11月18日","likes":4},{"id":"r17","orderId":"CY1793791045473","merchant":"贝斯汉堡·一食堂店","logo":"/assets/shop/beisi-logo.png","user":"周同学","anonymous":false,"star":5,"text":"配送很快，到宿舍还是热的","tags":["配送快"],"date":"11月19日","likes":5}],"aftersales":[{"id":"AF100","orderId":"CY1795259845490","merchant":"冰城奶茶铺·二食堂店","reason":"配送超时","amount":5,"status":"待商家确认","byService":false,"createdAt":1795259846490},{"id":"AF101","orderId":"CY1795173445489","merchant":"冰城奶茶铺·二食堂店","reason":"收到的餐品少了/错了","amount":5.25,"status":"商家确认中","byService":false,"createdAt":1795216646490},{"id":"AF102","orderId":"CY1795087045488","merchant":"川香麻辣香锅·一食堂店","reason":"餐品撒漏","amount":34.3,"status":"退款成功","byService":false,"createdAt":1795173446490},{"id":"AF103","orderId":"CY1795000645487","merchant":"文具日杂便利店·文渊楼店","reason":"配送超时","amount":7.75,"status":"待商家确认","byService":false,"createdAt":1795130246490},{"id":"AF104","orderId":"CY1794914245486","merchant":"校医务室药房·校医院店","reason":"收到的餐品少了/错了","amount":20.95,"status":"商家确认中","byService":true,"createdAt":1795087046490}],"users":[{"id":"u1","name":"杨同学","phone":"177****9000","orders":2,"spend":38.5,"status":"正常","coupons":0,"reg":"2026-03-01","freq":1.5},{"id":"u2","name":"李同学","phone":"177****9077","orders":3,"spend":55.8,"status":"正常","coupons":1,"reg":"2026-04-02","freq":2.1},{"id":"u3","name":"王同学","phone":"177****9154","orders":4,"spend":73.1,"status":"封禁","coupons":2,"reg":"2026-05-03","freq":2.7,"reason":"恶意刷单"},{"id":"u4","name":"刘同学","phone":"177****9231","orders":5,"spend":90.4,"status":"正常","coupons":0,"reg":"2026-06-04","freq":3.3},{"id":"u5","name":"陈同学","phone":"177****9308","orders":6,"spend":107.7,"status":"正常","coupons":1,"reg":"2026-07-05","freq":3.9},{"id":"u6","name":"张同学","phone":"177****9385","orders":7,"spend":125.0,"status":"正常","coupons":2,"reg":"2026-08-06","freq":1.5},{"id":"u7","name":"赵同学","phone":"177****9462","orders":8,"spend":142.3,"status":"正常","coupons":0,"reg":"2026-09-07","freq":2.1},{"id":"u8","name":"黄同学","phone":"177****9539","orders":9,"spend":159.6,"status":"正常","coupons":1,"reg":"2026-10-08","freq":2.7},{"id":"u9","name":"周同学","phone":"177****9616","orders":10,"spend":176.9,"status":"正常","coupons":2,"reg":"2026-11-09","freq":3.3},{"id":"u10","name":"吴同学","phone":"177****9693","orders":2,"spend":194.2,"status":"正常","coupons":0,"reg":"2026-03-10","freq":3.9}],"apps":[{"id":"A20261101","shop":"桃李面点坊","owner":"孙老板","phone":"135****2210","cat":"美食","docs":["营业执照","食品经营许可证","校园准入承诺书"],"status":"待审核","time":"11-19"},{"id":"A20261102","shop":"书香咖啡屋","owner":"马老板","phone":"138****6671","cat":"甜点饮品","docs":["营业执照","食品经营许可证"],"status":"待审核","time":"11-20"},{"id":"A20261103","shop":"夜猫子烧烤","owner":"郑老板","phone":"150****3345","cat":"美食","docs":["营业执照"],"status":"待审核","time":"11-21"}],"dishAudit":[{"id":"D01","shop":"麦香面包坊","dish":"榴莲酥（新品）","price":13.9,"status":"待审核","note":"图片与描述一致"},{"id":"D02","shop":"手抓饼·煎饼果子","dish":"豪华全加套餐","price":15.0,"status":"待审核","note":"含4种加料"},{"id":"D03","shop":"鲜果时光","dish":"现切西瓜杯","price":6.9,"status":"待审核","note":"时令水果"},{"id":"D04","shop":"麻辣拌之家","dish":"自制辣条（散装）","price":5.0,"status":"待审核","note":"散装自制，需核查资质"}],"setts":[{"id":"S01","shop":"川香麻辣香锅·一食堂店","period":"11.11-11.17","amount":860.0,"rate":"6%","status":"待打款"},{"id":"S02","shop":"贝斯汉堡·南苑店","period":"11.11-11.17","amount":1197.4,"rate":"6%","status":"已打款"},{"id":"S03","shop":"兰州牛肉面·二食堂店","period":"11.11-11.17","amount":1534.8,"rate":"6%","status":"已打款"},{"id":"S04","shop":"黄焖鸡米饭·南苑店","period":"11.11-11.17","amount":1872.2,"rate":"6%","status":"冻结"},{"id":"S05","shop":"烤肉拌饭·一食堂店","period":"11.11-11.17","amount":2209.6,"rate":"6%","status":"待打款"},{"id":"S06","shop":"张记麻辣烫·一食堂店","period":"11.11-11.17","amount":2547.0,"rate":"6%","status":"已打款"},{"id":"S07","shop":"铁板炒饭·二食堂店","period":"11.11-11.17","amount":2884.4,"rate":"6%","status":"已打款"},{"id":"S08","shop":"粥铺·早点·一食堂店","period":"11.11-11.17","amount":3221.8,"rate":"6%","status":"冻结"}],"rates":[{"shop":"川香麻辣香锅","id":"m01","rate":6,"delivery":"校园统一配送","act":true},{"shop":"川香麻辣香锅","id":"m02","rate":7,"delivery":"校园统一配送","act":false},{"shop":"老王青花椒烤鱼","id":"m03","rate":8,"delivery":"校园统一配送","act":true},{"shop":"贝斯汉堡","id":"m04","rate":6,"delivery":"校园统一配送","act":false},{"shop":"贝斯汉堡","id":"m05","rate":7,"delivery":"校园统一配送","act":true},{"shop":"贝斯汉堡","id":"m06","rate":8,"delivery":"校园统一配送","act":false},{"shop":"饺子云吞世家","id":"m07","rate":6,"delivery":"校园统一配送","act":true},{"shop":"饺子云吞世家","id":"m08","rate":7,"delivery":"校园统一配送","act":false}],"penalties":[{"id":"P01","shop":"夜宵炸串铺·北苑店","type":"警告","reason":"超时率超标（28%）","time":"11-15","by":"admin"},{"id":"P02","shop":"川味小炒·东门店","type":"限时停业3天","reason":"抽检留样不合格","time":"11-08","by":"admin"}],"acts":[{"id":"V01","type":"满减","desc":"全平台满25减5","scope":"全部商家","status":"进行中","end":"11-30"},{"id":"V02","type":"神券","desc":"天天膨 ¥3→¥18","scope":"40家神券商家","status":"进行中","end":"长期"},{"id":"V03","type":"限时","desc":"考试周夜宵专场8折","scope":"夜宵档12家","status":"待开始","end":"12-08"}],"feedbacks":[{"id":"F01","user":"杨同学","type":"投诉","text":"订单CY8842超时40分钟，骑手电话无人接","status":"待分配","assignee":"","time":"11-21 18:20"},{"id":"F02","user":"王同学","type":"建议","text":"希望增加考试周自习室代取餐点","status":"处理中","assignee":"kefu","time":"11-20 12:40"},{"id":"F03","user":"刘同学","type":"投诉","text":"收到的奶茶洒了一半，商家拒不处理","status":"待分配","assignee":"","time":"11-21 17:02"}],"escs":[{"id":"E01","from":"客服·小葵","subject":"商家申诉：夜宵炸串铺对处罚有异议","text":"商家提交了当日出餐记录，称超时系暴雨封路导致，申请撤销警告。证据已截图存档。","status":"待管理员处理","time":"11-15"},{"id":"E02","from":"客服·小葵","subject":"结算疑问：麦香面包坊账单金额对不上","text":"商家称11.11-11.17结算金额少28元，需管理员核对该周期退款单冲抵逻辑。","status":"处理中","time":"11-20"}],"chats":[{"id":1,"userId":"杨同学（用户）","type":"用户咨询","replied":false,"log":[{"me":false,"text":"订单CY8842怎么还没送到？都超时40分钟了"}]},{"id":2,"userId":"刘同学（用户）","type":"用户咨询","replied":false,"log":[{"me":false,"text":"奶茶洒了一半，商家让我找平台"}]},{"id":3,"userId":"麦香面包坊（商家）","type":"商家咨询","replied":false,"log":[{"me":false,"text":"我们这个周期的结算金额好像少了一笔，能帮忙核对下吗"}]},{"id":4,"userId":"夜宵炸串铺（商家）","type":"商家申诉","type2":"申诉上报","replied":false,"log":[{"me":false,"text":"警告处罚有异议，暴雨封路导致的超时，证据已提交，麻烦帮忙上报"}]},{"id":5,"userId":"周同学（用户·差评沟通）","type":"差评沟通","replied":false,"log":[{"me":false,"text":"给了差评是因为汤洒了，商家道歉了想和解删评，可以吗"}]}],"stats":{"todayOrders":147,"todayGMV":3862.5,"onlineMerchants":58,"pendingAfter":4,"pendingChat":2,"users":1268,"activeToday":356,"avgFreq":3.2,"avgSpend":28.4}};</script>
+<script>
+/* ================= 权限矩阵 =================
+   管理员：管全局、管审核、管配置、管数据（后台运营）
+   客服：处理纠纷、接待咨询、记录上报（无审批/处罚/配置权） */
+const MENUS=[
+  {g:'运营决策（管理员）',id:'dash',  name:'数据看板', icon:'📊', roles:['admin']},
+  {g:'运营决策（管理员）',id:'audit', name:'入驻审核', icon:'📝', roles:['admin']},
+  {g:'运营决策（管理员）',id:'shop',  name:'商家管理', icon:'🏪', roles:['admin']},
+  {g:'运营决策（管理员）',id:'dish',  name:'菜品审核', icon:'🍽️', roles:['admin']},
+  {g:'运营决策（管理员）',id:'rate',  name:'费率设置', icon:'💰', roles:['admin']},
+  {g:'运营决策（管理员）',id:'settle',name:'结算管理', icon:'🏦', roles:['admin']},
+  {g:'运营决策（管理员）',id:'punish',name:'处罚管理', icon:'⛔', roles:['admin']},
+  {g:'运营决策（管理员）',id:'act',   name:'活动配置', icon:'🎁', roles:['admin']},
+  {g:'运营决策（管理员）',id:'user',  name:'用户管理', icon:'👥', roles:['admin']},
+  {g:'运营决策（管理员）',id:'feedback',name:'用户反馈', icon:'📮', roles:['admin']},
+  {g:'服务接待（客服+管理员）',id:'order',name:'实时订单', icon:'🧾', roles:['admin','kefu']},
+  {g:'服务接待（客服+管理员）',id:'review',name:'评价管理', icon:'⭐', roles:['admin','kefu']},
+  {g:'服务接待（客服+管理员）',id:'after',name:'售后处理', icon:'↩️', roles:['admin','kefu']},
+  {g:'服务接待（客服+管理员）',id:'chat', name:'咨询接待', icon:'🎧', roles:['admin','kefu']},
+  {g:'服务接待（客服+管理员）',id:'report',name:'上报/申诉', icon:'📨', roles:['admin','kefu']},
+  {g:'客服概览 / 系统',id:'kdash',name:'客服概览', icon:'📋', roles:['kefu']},
+  {g:'客服概览 / 系统',id:'set',  name:'系统设置', icon:'⚙️', roles:['admin']}
+];
+const ACCOUNTS={admin:{pwd:'admin123',role:'管理员'},kefu:{pwd:'kefu123',role:'平台客服'}};
+const KEY='campus_db_v2',SS='campus_session';
+let DB=null,ROLE='',TAB='',TIMER=null,REMOTE='',CURCHAT=null;
+
+function toast(t){const el=document.getElementById('toast');el.textContent=t;el.style.display='block';setTimeout(()=>el.style.display='none',1800)}
+/* ================= 云端双向同步（Netlify Functions + Blobs） =================
+   写路径：save() → 差异记录打 _t → 防抖 POST /api/push
+   读路径：每3秒 GET /api/db → 按 _t "后写优先"合并 → render
+   前端（小程序）经同一云端库互通：前端下单/评价/售后推 /api/sync，后台推送经 /api/push */
+const SYNC_KEYS=['orders','aftersales','reviews','chats','shops','users','acts'];
+let PREV_DB=null,DIRTY={},PUSH_T=null,PULLING=false,CLOUD_OK=false;
+function cloudOn(){return typeof fetch==='function'}
+function stampDB(){
+  if(!PREV_DB){PREV_DB=JSON.parse(JSON.stringify(DB));return}
+  SYNC_KEYS.forEach(k=>{
+    if(!DB[k])return;
+    const pm={};(PREV_DB[k]||[]).forEach(r=>{if(r&&r.id)pm[r.id]=JSON.stringify(r)});
+    DB[k].forEach(r=>{if(r&&r.id&&pm[r.id]!==JSON.stringify(r)){r._t=Date.now();DIRTY[k]=true}});
+  });
+  PREV_DB=JSON.parse(JSON.stringify(DB));
+}
+function save(){stampDB();localStorage.setItem(KEY,JSON.stringify(DB));schedulePush()}
+function schedulePush(){if(!cloudOn())return;clearTimeout(PUSH_T);PUSH_T=setTimeout(pushDirty,1200)}
+async function pushDirty(){
+  if(!cloudOn())return;
+  const cols=Object.keys(DIRTY).filter(k=>DIRTY[k]&&Array.isArray(DB[k]));
+  if(!cols.length)return;
+  DIRTY={};
+  const body={};
+  cols.forEach(k=>{body[k]=DB[k]});
+  try{await fetch('/api/push',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({db:body})})}catch(e){}
+}
+function sortCol(k){
+  if(k==='orders')DB.orders.sort((a,b)=>(b._t||b.createdAt||0)-(a._t||a.createdAt||0));
+  if(k==='aftersales')DB.aftersales.sort((a,b)=>(b._t||0)-(a._t||0));
+}
+async function cloudPull(){
+  if(!cloudOn()||PULLING||!DB)return;PULLING=true;
+  const live=document.getElementById('live-txt');
+  try{
+    const r=await fetch('/api/db',{cache:'no-store'});
+    if(!r.ok)throw new Error('http'+r.status);
+    const j=await r.json();
+    let changed=false;
+    SYNC_KEYS.forEach(k=>{
+      const map=j&&j[k];if(!map)return;
+      const cur={};(DB[k]||[]).forEach(x=>{if(x&&x.id)cur[x.id]=x});
+      let ch=false;
+      Object.keys(map).forEach(id=>{
+        const rm=map[id];if(!rm)return;
+        if(!cur[id]||(rm._t||0)>(cur[id]._t||0)){cur[id]=rm;ch=true}
+      });
+      if(ch){DB[k]=Object.values(cur);changed=true;sortCol(k)}
+    });
+    if(changed){PREV_DB=JSON.parse(JSON.stringify(DB));localStorage.setItem(KEY,JSON.stringify(DB));if(['dash','kdash','order','review','after','shop','user','act','chat'].includes(TAB))render()}
+    CLOUD_OK=true;if(live)live.textContent='云端已连接 · 与小程序实时互通';
+  }catch(e){CLOUD_OK=false;if(live)live.textContent='云端未连接 · 本地演示模式（部署 netlify/functions 后与小程序互通）'}
+  PULLING=false;
+}
+function load(){
+  const raw=localStorage.getItem(KEY);
+  if(raw){try{DB=JSON.parse(raw)}catch(e){DB=null}}
+  if(!DB||!DB.shops||!DB.shops.length){
+    if(typeof SEED!=='undefined'&&SEED&&SEED.shops&&SEED.shops.length){DB=JSON.parse(JSON.stringify(SEED));save()}
+    else{DB={shops:[],orders:[],users:[],apps:[],dishes:[],settles:[],penalties:[],acts:[],feedbacks:[],reports:[],chats:[],reviews:[],aftersales:[]}}
+  }
+}
+function simTick(){
+  if(!DB||typeof SEED==='undefined'||!SEED||!SEED.shops||!SEED.orders||!SEED.orders.length)return;
+  const m=SEED.shops[Math.floor(Math.random()*SEED.shops.length)];
+  const dish=SEED.orders[Math.floor(Math.random()*SEED.orders.length)].items[0];
+  const mode=Math.random()<0.3?'自取':'配送';
+  const sub=+(dish.price*(1+Math.round(Math.random()*2))).toFixed(2);
+  const o={id:'CY'+Date.now(),merchantId:m.id,merchantName:m.name+'·'+m.branch,
+    items:[{name:dish.name,qty:1,price:dish.price}],mode,
+    statusList:mode==='自取'?['待接单','商家备餐中','出餐完成·凭码取餐']:['待接单','商家已接单','骑手配送中','已送达'],
+    statusIdx:0,price:mode==='配送'?+(sub+m.fee).toFixed(2):sub,fee:mode==='配送'?m.fee:0,discount:0,
+    addr:{tag:'宿舍',addr:'南苑9号楼315'},createdAt:Date.now()};
+  DB.orders.unshift(o);
+  DB.stats.todayOrders++;DB.stats.todayGMV=+(DB.stats.todayGMV+o.price).toFixed(2);
+  if(Math.random()<0.12)DB.chats.push({id:Date.now(),userId:['李同学（用户）','张同学（用户）','鲜果时光（商家）'][Math.floor(Math.random()*3)],type:['用户咨询','用户咨询','商家咨询'][Math.floor(Math.random()*3)],replied:false,log:[{me:false,text:'您好，我有个问题需要咨询'}]});
+  save();if(['dash','kdash','order','chat'].includes(TAB))render();
+}
+function doLogin(){
+  const u=document.getElementById('u').value.trim(),p=document.getElementById('p').value;
+  const a=ACCOUNTS[u];
+  if(!a||a.pwd!==p){document.getElementById('lg-err').textContent='账号或密码错误（admin/admin123，kefu/kefu123）';return}
+  sessionStorage.setItem(SS,JSON.stringify({u,role:a.role}));
+  ROLE=u==='kefu'?'kefu':'admin';TAB=ROLE==='kefu'?'kdash':'dash';
+  enter();
+}
+function logout(){sessionStorage.removeItem(SS);clearInterval(TIMER);document.getElementById('app').style.display='none';document.getElementById('login').style.display='flex'}
+function enter(){
+  document.getElementById('login').style.display='none';
+  document.getElementById('app').style.display='block';
+  const s=JSON.parse(sessionStorage.getItem(SS));
+  document.getElementById('who').textContent=s.u;
+  const rt=document.getElementById('role-tag');rt.textContent=s.role;rt.className='tp-role '+(ROLE==='kefu'?'r-kefu':'r-admin');
+  REMOTE=localStorage.getItem('campus_remote')||'';
+  load();render();
+  clearInterval(TIMER);TIMER=setInterval(simTick,8000);
+  cloudPull();setInterval(cloudPull,3000);
+}
+window.addEventListener('load',()=>{
+  const slot=document.getElementById('seedslot');
+  if(slot&&slot.textContent.trim().length>10){try{eval(slot.textContent)}catch(e){}}
+  if(typeof SEED!=='undefined'&&SEED){
+    const s=sessionStorage.getItem(SS);
+    if(s){const j=JSON.parse(s);ROLE=j.u==='kefu'?'kefu':'admin';TAB=ROLE==='kefu'?'kdash':'dash';enter()}
+  }
+});
+/* ================= 渲染 ================= */
+function fmtT(ts){const d=new Date(ts);return (d.getMonth()+1)+'-'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+function badgeOf(id){
+  if(id==='audit')return DB.apps.filter(a=>a.status==='待审核').length;
+  if(id==='dish')return DB.dishAudit.filter(a=>a.status==='待审核').length;
+  if(id==='feedback')return DB.feedbacks.filter(a=>a.status==='待分配').length;
+  if(id==='chat')return DB.chats.filter(c=>!c.replied).length;
+  if(id==='report')return DB.escs.filter(e=>e.status==='待管理员处理').length;
+  if(id==='after')return DB.aftersales.filter(a=>a.status!=='退款成功'&&a.status.indexOf('拒绝')<0).length;
+  return 0;
+}
+function render(){
+  const side=document.getElementById('side');let h='',lastG='';
+  MENUS.filter(m=>m.roles.includes(ROLE)).forEach(m=>{
+    if(m.g!==lastG){h+='<div class="sd-g">'+m.g+'</div>';lastG=m.g}
+    const b=badgeOf(m.id);
+    h+='<div class="sd-i '+(TAB===m.id?'on':'')+'" onclick="TAB=\''+m.id+'\';render()">'+m.icon+' <span>'+m.name+'</span>'+(b?'<span class="sd-badge">'+b+'</span>':'')+'</div>';
+  });
+  side.innerHTML=h;
+  const el=document.getElementById('main');
+  const V={dash:vDash,kdash:vKDash,order:vOrders,audit:vAudit,shop:vShop,dish:vDish,rate:vRate,settle:vSettle,punish:vPunish,act:vAct,user:vUser,feedback:vFeedback,review:vReview,after:vAfter,chat:vChat,report:vReport,set:vSet};
+  el.innerHTML=(V[TAB]||vDash)();
+}
+function statusTag(o){
+  const st=o.statusList[o.statusIdx];
+  const cls=o.statusIdx===o.statusList.length-1?'tg-grn':(o.statusIdx===0?'tg-gry':'tg-blu');
+  return '<span class="tag '+cls+'">'+st+'</span>';
+}
+/* ---------- 数据看板（管理员） ---------- */
+function vDash(){
+  const s=DB.stats;
+  const avg=DB.reviews.length?(DB.reviews.reduce((s2,r)=>s2+r.star,0)/DB.reviews.length).toFixed(2):'-';
+  const todos=[
+    ['📝 待审核入驻',DB.apps.filter(a=>a.status==='待审核').length+' 家','audit'],
+    ['🍽️ 待审核菜品',DB.dishAudit.filter(a=>a.status==='待审核').length+' 道','dish'],
+    ['🏦 待打款结算',DB.setts.filter(a=>a.status==='待打款').length+' 笔','settle'],
+    ['⛔ 处罚记录',DB.penalties.length+' 条','punish'],
+    ['📨 客服上报待处理',DB.escs.filter(e=>e.status==='待管理员处理').length+' 件','report'],
+    ['📮 反馈待分配',DB.feedbacks.filter(f=>f.status==='待分配').length+' 条','feedback']
+  ].map(t=>'<div class="todo" onclick="TAB=\''+t[2]+'\';render()" style="cursor:pointer"><span>'+t[0]+'</span><b style="color:#FF3000">'+t[1]+' ›</b></div>').join('');
+  const top=DB.shops.slice().sort((a,b)=>b.salesNum-a.salesNum).slice(0,8).map((s2,i)=>
+    '<tr><td>'+(i+1)+'</td><td>'+s2.name+'·'+s2.branch+'</td><td>'+s2.tag+'</td><td class="star">★'+s2.rating+'</td><td>月售'+s2.salesNum+'+</td><td>'+s2.km+'km</td></tr>').join('');
+  return `
+  <div class="grid4">
+    <div class="st" style="background:linear-gradient(135deg,#FFB300,#FF8F00)"><div class="v">${s.todayOrders}</div><div class="k">今日订单（实时）</div></div>
+    <div class="st" style="background:linear-gradient(135deg,#FF6034,#FF3000)"><div class="v">¥${s.todayGMV}</div><div class="k">今日营业额</div></div>
+    <div class="st" style="background:linear-gradient(135deg,#12b96e,#0a9d5c)"><div class="v">${s.users}</div><div class="k">注册用户</div></div>
+    <div class="st" style="background:linear-gradient(135deg,#8E6CFF,#5B4CDB)"><div class="v">★${avg}</div><div class="k">平台平均评分</div></div>
+  </div>
+  <div style="display:flex;gap:16px;margin-top:16px;flex-wrap:wrap">
+    <div class="card" style="flex:2;min-width:340px"><div class="c-t">实时订单流（最新20笔）</div><table><tr><th>单号</th><th>商户</th><th>金额</th><th>状态</th><th>时间</th></tr>
+      ${DB.orders.slice(0,20).map(o=>'<tr><td>'+o.id+'</td><td>'+o.merchantName+'</td><td>¥'+o.price+'</td><td>'+statusTag(o)+'</td><td>'+fmtT(o.createdAt)+'</td></tr>').join('')}
+    </table></div>
+    <div style="flex:1;min-width:260px">
+      <div class="card"><div class="c-t">待办事项（点击直达）</div>${todos}</div>
+      <div class="card"><div class="c-t">月售 Top8 商户</div><table><tr><th>#</th><th>商户</th><th>品类</th><th>评分</th><th>销量</th><th>距离</th></tr>${top}</table></div>
+    </div>
+  </div>`;
+}
+/* ---------- 客服概览 ---------- */
+function vKDash(){
+  const myTodo=[
+    ['🎧 待接待咨询',DB.chats.filter(c=>!c.replied).length+' 条','chat'],
+    ['↩️ 待处理售后',DB.aftersales.filter(a=>a.status!=='退款成功'&&a.status.indexOf('拒绝')<0).length+' 单','after'],
+    ['⭐ 待沟通差评',DB.reviews.filter(r=>r.star<=3&&!r.hidden).length+' 条','review'],
+    ['📨 已上报管理员',DB.escs.length+' 件','report']
+  ].map(t=>'<div class="todo" onclick="TAB=\''+t[2]+'\';render()" style="cursor:pointer"><span>'+t[0]+'</span><b style="color:#FF7A00">'+t[1]+' ›</b></div>').join('');
+  return `
+  <div class="grid4">
+    <div class="st" style="background:linear-gradient(135deg,#12b96e,#0a9d5c)"><div class="v">${DB.chats.filter(c=>!c.replied).length}</div><div class="k">待接待会话</div></div>
+    <div class="st" style="background:linear-gradient(135deg,#FFB300,#FF8F00)"><div class="v">${DB.aftersales.length}</div><div class="k">售后单（累计）</div></div>
+    <div class="st" style="background:linear-gradient(135deg,#8E6CFF,#5B4CDB)"><div class="v">${DB.orders.length}</div><div class="k">订单总量（可查询）</div></div>
+    <div class="st" style="background:linear-gradient(135deg,#FF6034,#FF3000)"><div class="v">${DB.escs.filter(e=>e.status==='待管理员处理').length}</div><div class="k">上报待管理员处理</div></div>
+  </div>
+  <div style="display:flex;gap:16px;margin-top:16px;flex-wrap:wrap">
+    <div class="card" style="flex:1;min-width:300px"><div class="c-t">我的待办（客服权限：接待/记录/上报）</div>${myTodo}
+      <div class="mut" style="margin-top:10px">⚠️ 客服无审批处罚权：入驻审核、费率、结算打款、处罚清退需提交管理员处理。</div>
+    </div>
+    <div class="card" style="flex:1.6;min-width:340px"><div class="c-t">最新订单（只读查询）</div><table><tr><th>单号</th><th>商户</th><th>模式</th><th>金额</th><th>状态</th></tr>
+      ${DB.orders.slice(0,10).map(o=>'<tr><td>'+o.id+'</td><td>'+o.merchantName+'</td><td>'+(o.mode==='自取'?'自取':'配送')+'</td><td>¥'+o.price+'</td><td>'+statusTag(o)+'</td></tr>').join('')}
+    </table></div>
+  </div>`;
+}
+/* ---------- 实时订单 ---------- */
+function vOrders(){
+  const admin=ROLE==='admin';
+  return `<div class="card"><div class="c-t">订单列表（每8秒实时刷新，共 ${DB.orders.length} 笔）
+    ${admin?'<button class="btn b-y b-sm" style="float:right" onclick="exportOrders()">⬇️ 导出订单CSV</button>':''}</div>
+  <table><tr><th>单号</th><th>商户</th><th>商品</th><th>模式</th><th>金额</th><th>状态</th><th>地址/取餐码</th><th>操作</th></tr>
+  ${DB.orders.slice(0,40).map(o=>{
+    let act='';
+    if(admin&&o.statusIdx<o.statusList.length-1)act+='<button class="btn b-y b-sm" onclick="advOrder(\''+o.id+'\')">推进</button>';
+    if(!admin)act+='<button class="btn b-bl b-sm" onclick="escOrder(\''+o.id+'\')">异常上报</button>';
+    return '<tr><td>'+o.id+'</td><td>'+o.merchantName+'</td><td>'+o.items.map(i=>i.name+'×'+i.qty).join('、')+'</td><td>'+(o.mode==='自取'?'<span class="tag tg-org">自取</span>':'<span class="tag tg-blu">配送</span>')+'</td><td>¥'+o.price+'</td><td>'+statusTag(o)+'</td><td>'+(o.mode==='自取'?o.id.slice(-4):((o.addr&&o.addr.addr)||'-'))+'</td><td>'+act+'</td></tr>';
+  }).join('')}
+  </table></div>`;
+}
+function advOrder(id){const o=DB.orders.find(x=>x.id===id);if(o&&o.statusIdx<o.statusList.length-1){o.statusIdx++;save();render();toast('订单 '+id+' → '+o.statusList[o.statusIdx])}}
+function exportOrders(){
+  const rows=[['单号','商户','模式','金额','状态','时间']].concat(DB.orders.map(o=>[o.id,o.merchantName,o.mode,o.price,o.statusList[o.statusIdx],fmtT(o.createdAt)]));
+  const csv='\uFEFF'+rows.map(r=>r.join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='orders.csv';a.click();toast('订单CSV已导出');
+}
+function escOrder(id){DB.escs.unshift({id:'E'+Date.now(),from:'客服',subject:'订单异常：'+id,text:'用户对订单 '+id+' 提出异议，已同步通知商家核实。',status:'待管理员处理',time:'刚刚'});save();toast('已上报管理员处理');render()}
+/* ---------- 入驻审核（管理员） ---------- */
+function vAudit(){
+  return `<div class="card"><div class="c-t">商家入驻审核（资料/资质/校园准入许可）</div>
+  ${DB.apps.map(a=>`<div style="border:1px solid #EEF0F2;border-radius:12px;padding:16px;margin-bottom:12px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <b style="font-size:15px">${a.shop}</b><span class="tag tg-gry">${a.cat}</span>
+      <span class="tag ${a.status==='待审核'?'tg-org':(a.status==='已通过'?'tg-grn':'tg-red')}">${a.status}</span>
+      <span class="mut" style="margin-left:auto">申请编号 ${a.id} · ${a.time}</span></div>
+    <div class="mut">负责人：${a.owner} · 电话：${a.phone}</div>
+    <div style="margin:10px 0">提交资质：${a.docs.map(d=>'<span class="tag tg-blu">'+d+'</span>').join(' ')}${a.docs.length<3?'<span class="tag tg-red">缺校园准入承诺书</span>':''}</div>
+    ${a.status==='待审核'?`<button class="btn b-ok b-sm" onclick="auditApp('${a.id}',1)">✓ 通过入驻</button><button class="btn b-rd b-sm" onclick="auditApp('${a.id}',0)">✗ 驳回（补齐资质）</button>`:''}
+  </div>`).join('')||'<div class="mut">暂无待审核申请</div>'}
+  </div>`;
+}
+function auditApp(id,ok){
+  const a=DB.apps.find(x=>x.id===id);if(!a)return;
+  a.status=ok?'已通过':'已驳回';
+  save();render();toast(ok?'「'+a.shop+'」入驻审核通过，已通知商家':'「'+a.shop+'」已驳回，等待补齐资质');
+}
+/* ---------- 商家管理（管理员） ---------- */
+function vShop(){
+  return `<div class="card"><div class="c-t">商家管理（${DB.shops.length}家 · 新增/禁用/下架/信息修改/营业状态）
+    <button class="btn b-y b-sm" style="float:right" onclick="addShop()">＋ 新增商家</button></div>
+  <table><tr><th>ID</th><th>商户</th><th>品类</th><th>评分</th><th>月售</th><th>起送/配送费</th><th>状态</th><th>操作</th></tr>
+  ${DB.shops.slice(0,20).map(s=>`<tr><td>${s.id}</td><td>${s.name}·${s.branch}</td><td><span class="tag tg-gry">${s.tag}</span></td><td class="star">★${s.rating}</td><td>${s.salesNum}+</td><td>¥${s.min} / ¥${s.fee}</td><td><span class="tag ${s.status&&s.status!=='营业中'?'tg-red':'tg-grn'}">${s.status||'营业中'}</span></td>
+    <td><button class="btn b-no b-sm" onclick="editShop('${s.id}')">编辑</button><button class="btn b-bl b-sm" onclick="toggleShop('${s.id}')">禁用</button><button class="btn b-rd b-sm" onclick="offShop('${s.id}')">下架</button></td></tr>`).join('')}
+  </table><div class="mut" style="margin-top:10px">显示前20家；禁用/下架同步小程序端营业状态。</div></div>`;
+}
+function addShop(){
+  const n=prompt('输入新商家名称（如：香满园快餐·南苑店）');if(!n)return;
+  DB.shops.unshift({id:'m'+(DB.shops.length+1).toString().padStart(2,'0'),name:n.split('·')[0],branch:n.split('·')[1]||'新店',tag:'美食',rating:5.0,salesNum:0,km:1.0,fee:2,min:15});
+  save();render();toast('商家「'+n+'」已创建，默认营业中');
+}
+function editShop(id){const s=DB.shops.find(x=>x.id===id);if(!s)return;const n=prompt('修改商家名称：',s.name+'·'+s.branch);if(n){s.name=n.split('·')[0];s.branch=n.split('·')[1]||s.branch;save();render();toast('已保存')}}
+function toggleShop(id){const s=DB.shops.find(x=>x.id===id);if(!s)return;s.status=s.status==='已禁用'?'营业中':'已禁用';save();render();toast('「'+s.name+'」'+(s.status==='已禁用'?'已禁用，小程序端停止接单':'已恢复营业'))}
+function offShop(id){const s=DB.shops.find(x=>x.id===id);if(!s)return;s.status='已下架';save();render();toast('「'+s.name+'」已下架')}
+/* ---------- 菜品审核（管理员） ---------- */
+function vDish(){
+  return `<div class="card"><div class="c-t">菜品审核（商家上架菜品/图片/价格，违规直接下架）</div>
+  <table><tr><th>商家</th><th>菜品</th><th>价格</th><th>备注</th><th>状态</th><th>操作</th></tr>
+  ${DB.dishAudit.map(d=>`<tr><td>${d.shop}</td><td>${d.dish}</td><td>¥${d.price}</td><td class="mut">${d.note}</td><td><span class="tag ${d.status==='待审核'?'tg-org':(d.status==='已通过'?'tg-grn':'tg-red')}">${d.status}</span></td>
+    <td>${d.status==='待审核'?`<button class="btn b-ok b-sm" onclick="auditDish('${d.id}',1)">✓ 通过上架</button><button class="btn b-rd b-sm" onclick="auditDish('${d.id}',0)">✗ 下架</button>`:'-'}</td></tr>`).join('')}
+  </table></div>`;
+}
+function auditDish(id,ok){const d=DB.dishAudit.find(x=>x.id===id);if(!d)return;d.status=ok?'已通过':'已下架';save();render();toast(ok?'「'+d.dish+'」已通过上架':'「'+d.dish+'」违规已下架')}
+/* ---------- 费率设置（管理员） ---------- */
+function vRate(){
+  return `<div class="card"><div class="c-t">费率设置（平台抽成 / 配送费规则 / 优惠活动权限）</div>
+  <table><tr><th>商家</th><th>平台抽成</th><th>配送费规则</th><th>优惠活动权限</th><th>操作</th></tr>
+  ${DB.rates.map((r,i)=>`<tr><td>${r.shop}</td><td><b style="color:#FF3000">${r.rate}%</b></td><td>${r.delivery}</td><td>${r.act?'<span class="tag tg-grn">已开通</span>':'<span class="tag tg-gry">未开通</span>'}</td>
+    <td><button class="btn b-no b-sm" onclick="editRate(${i})">改抽成</button><button class="btn b-bl b-sm" onclick="toggleAct(${i})">${r.act?'关闭优惠':'开通优惠'}</button></td></tr>`).join('')}
+  </table><div class="mut" style="margin-top:10px">抽成结算时自动扣除；优惠权限决定商家能否配置满减/券活动。</div></div>`;
+}
+function editRate(i){const r=DB.rates[i];const v=prompt('设置「'+r.shop+'」平台抽成（%）：',r.rate);if(v!==null&&+v>=0&&+v<=30){r.rate=+v;save();render();toast('抽成已更新为 '+v+'%')}}
+function toggleAct(i){const r=DB.rates[i];r.act=!r.act;save();render();toast('「'+r.shop+'」优惠活动权限已'+(r.act?'开通':'关闭'))}
+/* ---------- 结算管理（管理员） ---------- */
+function vSettle(){
+  const pend=DB.setts.filter(s=>s.status==='待打款').reduce((x,s)=>x+s.amount,0);
+  return `<div class="card"><div class="c-t">结算管理（结算周期：每周一结 · 本期待打款 ¥${pend.toFixed(2)}）</div>
+  <table><tr><th>账单</th><th>商家</th><th>周期</th><th>抽成</th><th>应结金额</th><th>状态</th><th>操作</th></tr>
+  ${DB.setts.map(s=>`<tr><td>${s.id}</td><td>${s.shop}</td><td>${s.period}</td><td>${s.rate}</td><td><b>¥${s.amount}</b></td>
+    <td><span class="tag ${s.status==='待打款'?'tg-org':(s.status==='已打款'?'tg-grn':'tg-red')}">${s.status}</span></td>
+    <td>${s.status==='待打款'?`<button class="btn b-ok b-sm" onclick="paySettle('${s.id}')">发起打款</button><button class="btn b-rd b-sm" onclick="frozenSettle('${s.id}')">冻结</button>`:(s.status==='冻结'?'<button class="btn b-ok b-sm" onclick="unfreeze(\''+s.id+'\')">解冻</button>':'-')}</td></tr>`).join('')}
+  </table><div class="mut" style="margin-top:10px">违规商家可冻结资金；打款后商家端可见结算账单明细。</div></div>`;
+}
+function paySettle(id){const s=DB.setts.find(x=>x.id===id);if(s){s.status='已打款';save();render();toast('账单 '+id+' 已发起打款 ¥'+s.amount)}}
+function frozenSettle(id){const s=DB.setts.find(x=>x.id===id);if(s){s.status='冻结';save();render();toast('账单 '+id+' 资金已冻结')}}
+function unfreeze(id){const s=DB.setts.find(x=>x.id===id);if(s){s.status='待打款';save();render();toast('资金已解冻，待打款')}}
+/* ---------- 处罚管理（管理员） ---------- */
+function vPunish(){
+  return `<div class="card"><div class="c-t">处罚管理（警告 / 限时停业 / 清退）
+    <button class="btn b-rd b-sm" style="float:right" onclick="addPunish()">＋ 新增处罚</button></div>
+  <table><tr><th>编号</th><th>商家</th><th>处罚类型</th><th>事由</th><th>时间</th><th>操作人</th></tr>
+  ${DB.penalties.map(p=>`<tr><td>${p.id}</td><td>${p.shop}</td><td><span class="tag ${p.type.indexOf('清退')>=0?'tg-red':'tg-org'}">${p.type}</span></td><td>${p.reason}</td><td>${p.time}</td><td>${p.by}</td></tr>`).join('')}
+  </table><div class="mut" style="margin-top:10px">客服无处罚权，仅收集证据上报（见「上报/申诉」）。</div></div>`;
+}
+function addPunish(){
+  const shop=prompt('处罚商家名称：');if(!shop)return;
+  const type=prompt('处罚类型（警告 / 限时停业N天 / 清退）：','警告');if(!type)return;
+  const reason=prompt('事由：','违规经营');
+  DB.penalties.unshift({id:'P'+Date.now().toString().slice(-4),shop,type,reason:reason||'',time:'刚刚',by:'admin'});
+  save();render();toast('已对「'+shop+'」执行：'+type);
+}
+/* ---------- 活动配置（管理员） ---------- */
+function vAct(){
+  return `<div class="card"><div class="c-t">活动配置（满减 / 优惠券 / 限时活动）
+    <button class="btn b-y b-sm" style="float:right" onclick="addAct()">＋ 新增活动</button></div>
+  <table><tr><th>编号</th><th>类型</th><th>内容</th><th>适用范围</th><th>状态</th><th>截止</th><th>操作</th></tr>
+  ${DB.acts.map(a=>`<tr><td>${a.id}</td><td><span class="tag tg-blu">${a.type}</span></td><td>${a.desc}</td><td>${a.scope}</td>
+    <td><span class="tag ${a.status==='进行中'?'tg-grn':'tg-gry'}">${a.status}</span></td><td>${a.end}</td>
+    <td><button class="btn b-no b-sm" onclick="toggleVAct('${a.id}')">${a.status==='进行中'?'停用':'启用'}</button></td></tr>`).join('')}
+  </table></div>`;
+}
+function toggleVAct(id){const a=DB.acts.find(x=>x.id===id);if(a){a.status=a.status==='进行中'?'已停用':'进行中';save();render();toast('活动已'+a.status)}}
+function addAct(){
+  const type=prompt('活动类型（满减 / 优惠券 / 限时）：','优惠券');if(!type)return;
+  const desc=prompt('活动内容：','新客立减5元');if(!desc)return;
+  let v=null,condMin=null;
+  if(type.includes('券')){
+    v=parseFloat(prompt('券面额（元）：','5'))||null;
+    condMin=parseFloat(prompt('使用门槛（满多少元可用，0为无门槛）：','0'));
+    if(!condMin)condMin=null;
+  }
+  DB.acts.unshift({id:'V'+Date.now().toString().slice(-4),type,desc,scope:'全部商家',status:'进行中',end:'长期',v:v,condMin:condMin});
+  save();render();toast('活动已创建'+(v?('，¥'+v+'券已同步小程序'):'并开始'));
+}
+/* ---------- 用户管理（管理员） ---------- */
+function vUser(){
+  const s=DB.stats;
+  return `
+  <div class="grid4">
+    <div class="st" style="background:linear-gradient(135deg,#12b96e,#0a9d5c)"><div class="v">${s.users}</div><div class="k">注册用户</div></div>
+    <div class="st" style="background:linear-gradient(135deg,#FFB300,#FF8F00)"><div class="v">${s.activeToday}</div><div class="k">今日活跃</div></div>
+    <div class="st" style="background:linear-gradient(135deg,#8E6CFF,#5B4CDB)"><div class="v">${s.avgFreq}<span style="font-size:14px">次/周</span></div><div class="k">平均下单频次</div></div>
+    <div class="st" style="background:linear-gradient(135deg,#FF6034,#FF3000)"><div class="v">¥${s.avgSpend}</div><div class="k">客单均价</div></div>
+  </div>
+  <div class="card" style="margin-top:16px"><div class="c-t">用户账号管理（账号状态 / 封禁违规 / 优惠券发放收回）</div>
+  <table><tr><th>用户</th><th>手机号</th><th>注册时间</th><th>下单数</th><th>周频次</th><th>累计消费</th><th>持券</th><th>状态</th><th>操作</th></tr>
+  ${DB.users.map(u=>`<tr><td>${u.name}</td><td>${u.phone}</td><td>${u.reg}</td><td>${u.orders}</td><td>${u.freq}次/周</td><td>¥${u.spend}</td><td>${u.coupons}张</td>
+    <td>${u.status==='正常'?'<span class="tag tg-grn">正常</span>':'<span class="tag tg-red">封禁 · '+(u.reason||'')+'</span>'}</td>
+    <td><button class="btn b-no b-sm" onclick="giveCoupon('${u.id}')">发券</button><button class="btn b-no b-sm" onclick="takeCoupon('${u.id}')">收券</button>
+    ${u.status==='正常'?'<button class="btn b-rd b-sm" onclick="banUser(\''+u.id+'\')">封禁</button>':'<button class="btn b-ok b-sm" onclick="unbanUser(\''+u.id+'\')">解封</button>'}</td></tr>`).join('')}
+  </table></div>`;
+}
+function giveCoupon(id){const u=DB.users.find(x=>x.id===id);const v=prompt('给「'+u.name+'」发放神券面额（元）：','10');if(v){u.coupons++;save();render();toast('已发放 ¥'+v+' 神券给 '+u.name)}}
+function takeCoupon(id){const u=DB.users.find(x=>x.id===id);if(u.coupons>0){u.coupons--;save();render();toast('已收回 1 张券')}else toast('该用户无券可收')}
+function banUser(id){const u=DB.users.find(x=>x.id===id);const r=prompt('封禁事由（恶意刷单/恶意差评）：','恶意刷单');u.status='封禁';u.reason=r;save();render();toast('「'+u.name+'」已封禁')}
+function unbanUser(id){const u=DB.users.find(x=>x.id===id);u.status='正常';u.reason='';save();render();toast('「'+u.name+'」已解封')}
+/* ---------- 用户反馈（管理员） ---------- */
+function vFeedback(){
+  return `<div class="card"><div class="c-t">用户反馈（投诉/建议 · 可分配给客服处理）</div>
+  <table><tr><th>用户</th><th>类型</th><th>内容</th><th>时间</th><th>状态</th><th>处理人</th><th>操作</th></tr>
+  ${DB.feedbacks.map(f=>`<tr><td>${f.user}</td><td><span class="tag ${f.type==='投诉'?'tg-red':'tg-blu'}">${f.type}</span></td><td style="max-width:280px">${f.text}</td><td>${f.time}</td>
+    <td><span class="tag ${f.status==='待分配'?'tg-org':(f.status==='已办结'?'tg-grn':'tg-blu')}">${f.status}</span></td><td>${f.assignee||'-'}</td>
+    <td>${f.status==='待分配'?'<button class="btn b-bl b-sm" onclick="assignFB(\''+f.id+'\')">分配给客服</button>':(f.status==='已办结'?'-':'<button class="btn b-ok b-sm" onclick="doneFB(\''+f.id+'\')">标记办结</button>')}</td></tr>`).join('')}
+  </table></div>`;
+}
+function assignFB(id){const f=DB.feedbacks.find(x=>x.id===id);f.status='处理中';f.assignee='kefu';save();render();toast('已分配给客服 kefu 处理')}
+function doneFB(id){const f=DB.feedbacks.find(x=>x.id===id);f.status='已办结';save();render();toast('反馈已办结')}
+/* ---------- 评价管理 ---------- */
+function vReview(){
+  const admin=ROLE==='admin';
+  return `<div class="card"><div class="c-t">评价管理（${admin?'管理员：删除恶意辱骂/违规评价':'客服：差评沟通与和解（无删除权）'}）</div>
+  <table><tr><th>用户</th><th>商户</th><th>星级</th><th>内容</th><th>标签</th><th>操作</th></tr>
+  ${DB.reviews.map(r=>`<tr><td>${r.anonymous?'匿名':r.user}</td><td>${r.merchant}</td><td class="star">${'★'.repeat(r.star)}${'☆'.repeat(5-r.star)}</td><td style="max-width:260px">${r.text}</td><td>${(r.tags||[]).map(t=>'<span class="tag tg-gry">'+t+'</span>').join(' ')}</td>
+    <td>${admin?(r.hidden?'<span class="tag tg-red">已删除</span>':'<button class="btn b-rd b-sm" onclick="delReview(\''+r.id+'\')">删除</button>'):(r.star<=3?'<button class="btn b-bl b-sm" onclick="goChatReview(\''+(r.anonymous?'匿名用户':r.user)+'\')">差评沟通</button>':'-')}</td></tr>`).join('')}
+  </table></div>`;
+}
+function delReview(id){const r=DB.reviews.find(x=>x.id===id);if(r){r.hidden=true;save();render();toast('违规评价已删除')}}
+function goChatReview(user){
+  DB.chats.push({id:Date.now(),userId:user+'（差评沟通）',type:'差评沟通',replied:false,log:[{me:false,text:'您好，关于您的差评我们想跟您协商处理'}]});
+  save();TAB='chat';render();toast('已发起差评沟通会话');
+}
+/* ---------- 售后处理 ---------- */
+function vAfter(){
+  return `<div class="card"><div class="c-t">售后处理（${ROLE==='admin'?'管理员视图':'客服可协助退款，纠纷可上报管理员'}）</div>
+  <table><tr><th>售后单</th><th>订单</th><th>商户</th><th>原因</th><th>退款额</th><th>状态</th><th>来源</th><th>操作</th></tr>
+  ${DB.aftersales.map(a=>`<tr><td>${a.id}</td><td>${a.orderId}</td><td>${a.merchant}</td><td>${a.reason}</td><td>¥${a.amount}</td>
+    <td><span class="tag ${a.status==='退款成功'?'tg-grn':(a.status.indexOf('拒绝')>=0?'tg-red':'tg-org')}">${a.status}</span></td>
+    <td>${a.byService?'<span class="tag tg-blu">客服处理</span>':'<span class="tag tg-gry">商家流程</span>'}</td>
+    <td>${a.status!=='退款成功'&&a.status.indexOf('拒绝')<0?'<button class="btn b-ok b-sm" onclick="okAfter(\''+a.id+'\')">同意退款</button><button class="btn b-rd b-sm" onclick="noAfter(\''+a.id+'\')">拒绝</button><button class="btn b-bl b-sm" onclick="escAfter(\''+a.id+'\')">上报</button>':'-'}</td></tr>`).join('')}
+  </table></div>`;
+}
+function okAfter(id){const a=DB.aftersales.find(x=>x.id===id);if(a){a.status='退款成功';a.byService=true;save();render();toast('售后 '+id+' 已退款')}else toast('未找到售后单')}
+function noAfter(id){const a=DB.aftersales.find(x=>x.id===id);if(a){a.status='已拒绝 · 维持原判';save();render();toast('售后 '+id+' 已拒绝')}else toast('未找到售后单')}
+function escAfter(id){const a=DB.aftersales.find(x=>x.id===id);DB.escs.unshift({id:'E'+Date.now(),from:'客服',subject:'售后纠纷：'+id,text:'售后单 '+id+'（'+a.merchant+' · ¥'+a.amount+'）双方无法协商一致，请管理员判定。',status:'待管理员处理',time:'刚刚'});save();render();toast('已上报管理员判定')}
+/* ---------- 咨询接待（客服工作台） ---------- */
+function vChat(){
+  const users=DB.chats;
+  if(!CURCHAT&&users.length)CURCHAT=users[0].id;
+  const c=users.find(x=>x.id===CURCHAT);
+  const kw=[['已为您催促商家，预计10分钟内送达','催单'],['退款已提交，金额将原路退回','退款'],['已补偿¥5神券，可在「神券」页查看','补券'],['您的问题已记录，将上报管理员核实','上报'],['结算账单已同步核对，请查收','结算'],['我们已联系商家协商差评和解，请留意消息','差评']];
+  return `<div class="card"><div class="c-t">咨询接待（用户咨询 + 商家咨询 + 差评沟通 + 商家申诉）</div>
+  <div class="chat-row">
+    <div class="chat-users">${users.map(u=>'<div class="cu '+(u.id===CURCHAT?'on':'')+'" onclick="CURCHAT='+u.id+';render()"><div class="cu-n">'+u.userId+' <span class="tag '+(u.type==='商家申诉'?'tg-red':(u.type.indexOf('商家')>=0?'tg-blu':'tg-grn'))+'" style="font-size:10px">'+u.type+'</span></div><div class="cu-m">'+(u.replied?'':'🟠 ')+u.log[u.log.length-1].text+'</div></div>').join('')}</div>
+    <div class="chat-main">
+      <div class="chat-msgs" id="msgs">${c?c.log.map(m=>'<div class="msg '+(m.me?'me':'u')+'">'+m.text+'</div>').join(''):'<div style="color:#999;text-align:center;padding-top:200px">选择左侧会话开始接待</div>'}</div>
+      <div style="padding:8px 12px;border-top:1px solid #F0F0F0">
+        ${c?kw.filter(k=>c.type.indexOf(k[1])>=0||['催单','退款','补券'].includes(k[1])).map(k=>'<span class="chip" onclick="quick(\''+k[0]+'\')">'+k[1]+'</span>').join(''):''}
+        ${c&&c.type==='商家申诉'?'<span class="chip" onclick="escChat()" style="background:#FFF1F1;color:#FF3000">⬆️ 上报管理员</span>':''}
+      </div>
+      <div class="chat-input"><input id="cin" placeholder="输入回复，回车发送…" onkeydown="if(event.key==='Enter')sendMsg()"><button class="btn b-y" onclick="sendMsg()">发送</button></div>
+    </div>
+  </div></div>`;
+}
+function sendMsg(){const i=document.getElementById('cin');const t=i.value.trim();if(!t||!CURCHAT)return;const c=DB.chats.find(x=>x.id===CURCHAT);c.log.push({me:true,text:t});c.replied=true;save();i.value='';render()}
+function quick(t){const i=document.getElementById('cin');if(i)i.value=t;sendMsg()}
+function escChat(){const c=DB.chats.find(x=>x.id===CURCHAT);if(!c)return;
+  DB.escs.unshift({id:'E'+Date.now(),from:'客服',subject:c.type+'：'+c.userId,text:c.log.map(m=>(m.me?'客服：':'对方：')+m.text).join(' / '),status:'待管理员处理',time:'刚刚'});
+  save();toast('会话已上报管理员');
+}
+/* ---------- 上报/申诉 ---------- */
+function vReport(){
+  const admin=ROLE==='admin';
+  if(admin){
+    return `<div class="card"><div class="c-t">客服上报 / 商家申诉（管理员判定处理）</div>
+    ${DB.escs.map(e=>`<div style="border:1px solid #EEF0F2;border-radius:12px;padding:16px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:10px"><b>${e.subject}</b>
+        <span class="tag ${e.status==='待管理员处理'?'tg-org':'tg-grn'}">${e.status}</span>
+        <span class="mut" style="margin-left:auto">${e.from} · ${e.time}</span></div>
+      <div class="mut" style="margin:10px 0">${e.text}</div>
+      ${e.status==='待管理员处理'?`<button class="btn b-ok b-sm" onclick="resolveEsc('${e.id}',1)">✓ 支持（撤销/补正）</button><button class="btn b-rd b-sm" onclick="resolveEsc('${e.id}',0)">✗ 驳回（维持原判）</button>`:''}
+    </div>`).join('')||'<div class="mut">暂无上报</div>'}
+    </div>`;
+  }
+  return `<div class="card"><div class="c-t">提交上报（收集证据提交管理员，客服无审批权）</div>
+  <div class="set-row"><input class="set-in" id="esc-s" placeholder="上报主题（如：商家XX对处罚有异议）">
+  <button class="btn b-ok" onclick="submitEsc()">提交管理员</button></div>
+  <textarea class="set-in" id="esc-t" placeholder="问题描述与证据说明…" style="width:100%;height:90px;margin-top:10px"></textarea>
+  <div class="mut" style="margin-top:14px">我提交的上报（${DB.escs.length}件）：</div>
+  ${DB.escs.map(e=>`<div class="todo"><span>${e.subject}</span><span class="tag ${e.status==='待管理员处理'?'tg-org':'tg-grn'}">${e.status}</span></div>`).join('')}
+  </div>`;
+}
+function resolveEsc(id,ok){const e=DB.escs.find(x=>x.id===id);if(e){e.status=ok?'已支持（已撤销/补正）':'已驳回（维持原判）';save();render();toast(ok?'已支持：相关处罚/账单已调整':'已驳回：维持原判')}}
+function submitEsc(){const s=document.getElementById('esc-s'),t=document.getElementById('esc-t');if(!s.value.trim()){toast('请填写主题');return}
+  DB.escs.unshift({id:'E'+Date.now(),from:'客服',subject:s.value.trim(),text:t.value.trim(),status:'待管理员处理',time:'刚刚'});
+  save();s.value='';t.value='';render();toast('已提交管理员处理');}
+/* ---------- 系统设置 ---------- */
+function vSet(){
+  return `<div class="card"><div class="c-t">云端实时互通（自动）</div>
+  <div class="mut">· 后台每3秒自动拉取云端库，操作后自动推送，与小程序双向实时互通。<br>· 互通数据：订单状态 / 售后进度 / 评价（可删除）/ 商家停业·下架 / 发放优惠券 / 封禁用户。<br>· 需部署本目录的 netlify/functions（随站点一起上传即可）；未部署时为本地演示模式。</div>
+  <div class="mut" style="margin-top:8px">同步状态：<span id="live-txt">检测中…</span></div>
+  </div>
+  <div class="card"><div class="c-t">数据操作</div>
+  <button class="btn b-y" onclick="exportDB()">⬇️ 导出数据库 JSON</button>
+  <button class="btn b-no" style="margin-left:10px" onclick="resetDB()">🗑️ 重置为种子数据</button></div>
+  <div class="card"><div class="c-t">权限说明（需求文档对照）</div>
+  <table><tr><th></th><th>商家相关核心</th><th>用户相关核心</th><th>权限特点</th></tr>
+  <tr><td><b>管理员</b></td><td>入驻审核、启停商家、抽成、结算打款、处罚清退</td><td>账号封禁、评价审核、发券、数据统计</td><td><span class="tag tg-red">全局决策权</span></td></tr>
+  <tr><td><b>客服</b></td><td>商家咨询、订单纠纷对接、申诉收集上报</td><td>售后退款、接待咨询、纠纷协调</td><td><span class="tag tg-blu">仅接待/记录/上报</span></td></tr></table>
+  <div class="mut" style="margin-top:10px">校园场景补充：管理员管控商家是否允许进校园、限制配送范围；客服重点处理超时、取餐点冲突、学生投诉。</div></div>`;
+}
+function setRemote(){REMOTE=document.getElementById('rurl').value.trim();localStorage.setItem('campus_remote',REMOTE);toast(REMOTE?'已保存并开始轮询':'已清空');pollRemote()}
+function clearRemote(){REMOTE='';localStorage.removeItem('campus_remote');document.getElementById('live-txt').textContent='本地演示模式'}
+function exportDB(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(DB,null,2)],{type:'application/json'}));a.download='campus-db.json';a.click()}
+function resetDB(){DB=JSON.parse(JSON.stringify(SEED));save();CURCHAT=null;render();toast('已重置为种子数据')}
+</script>
+</body>
+</html>
